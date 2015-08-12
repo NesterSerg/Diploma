@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     finiteelement.cpp \
     net.cpp \
     mfe.cpp \
-    test.cpp
+    test.cpp \
+    matrixlu.cpp
 
 HEADERS  += mainwindow.h \
     QDPoint.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     finiteelement.h \
     net.h \
     mfe.h \
-    test.h
+    test.h \
+    matrixlu.h
 
 FORMS    += mainwindow.ui
 OTHER_FILES +=
