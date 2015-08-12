@@ -18,14 +18,16 @@ SOURCES += main.cpp\
     operators.cpp \
     finiteelement.cpp \
     net.cpp \
-    mfe.cpp
+    mfe.cpp \
+    test.cpp
 
 HEADERS  += mainwindow.h \
     QDPoint.h \
     operators.h \
     finiteelement.h \
     net.h \
-    mfe.h
+    mfe.h \
+    test.h
 
 FORMS    += mainwindow.ui
 OTHER_FILES +=
