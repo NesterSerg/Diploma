@@ -8,10 +8,8 @@ class FiniteElement
     public:
         FiniteElement();
         FiniteElement(QVector <Index3>& vec);
-        FiniteElement &operator = (const FiniteElement &element_2);
 
-        Index3 &operator [](int i);
-        const Index3 & getconstref(int i)const;
+        Index3 &operator [](int i);       
         friend QTextStream & operator << (QTextStream & out, FiniteElement &e);
         int W()const;
         int& rw();
