@@ -14,7 +14,7 @@ QDPoint::QDPoint(double xpos, double ypos, double zpos)
     pz = zpos;
 }
 
-QDPoint &QDPoint::operator =(QDPoint &point_2)
+QDPoint &QDPoint::operator =(const QDPoint &point_2)
 {
     px = point_2.x();
     py = point_2.y();
