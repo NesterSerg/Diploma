@@ -5,6 +5,11 @@ Net::Net()
 
 }
 
+Net::~Net()
+{
+
+}
+
 void Net::allocation()
 {
 // Выделение памяти под раздробленную сетку
@@ -161,6 +166,7 @@ void Net::loadInfoFromFile(QString& filename)
                 in >> CLSections[i][j];
         }
 
+    }
 }
 
 
