@@ -14,24 +14,11 @@ FiniteElement::FiniteElement(QVector<Index3> &vec)
         vertexs[i] = vec[i];
 }
 
-FiniteElement &FiniteElement::operator =(const  FiniteElement &element_2)
-{
-    for(unsigned int i = 0; i < numvertexs; i++)
-        vertexs[i]  = element_2.getconstref(i);
-    return *this;
-}
 
 Index3 &FiniteElement::operator [](int i)
 {
     return vertexs[i];
 }
-
-const Index3 &FiniteElement::getconstref(int i)const
-{
-    return vertexs[i];
-}
-
-
 
 int FiniteElement::W() const
 {
@@ -56,4 +43,3 @@ QTextStream& operator <<(QTextStream &out, FiniteElement &e)
     out << e.W() << "\n";
     return out;
 }
-
