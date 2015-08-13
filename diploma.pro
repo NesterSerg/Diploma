@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     finiteelement.cpp \
     net.cpp \
     mfe.cpp \    
-    matrixlu.cpp
+    matrixlu.cpp \
+    index3.cpp
 
 HEADERS  += mainwindow.h \
     QDPoint.h \
@@ -27,7 +28,8 @@ HEADERS  += mainwindow.h \
     finiteelement.h \
     net.h \
     mfe.h \    
-    matrixlu.h
+    matrixlu.h \
+    index3.h
 
 FORMS    += mainwindow.ui
 OTHER_FILES +=
@@ -35,6 +37,8 @@ RESOURCES +=
 RC_FILE += appIcon.rc
 
 DISTFILES += \
-    NetInfo.txt
+    NetInfo.txt \
+    Finiteelement.txt
+
 
 

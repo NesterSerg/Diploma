@@ -84,6 +84,24 @@ void Net::createNet()
     allocation();// выделяем память под элементы, подсчитываем индексы опорных точек в сетке
 }
 
+QDPoint Net::getFNet(int i, int j, int k)
+{
+    return FNet[i][j][k];
+}
+
+int Net::sizeX()
+{
+    return Nx;
+}
+int Net::sizeY()
+{
+    return Ny;
+}
+int Net::sizeZ()
+{
+    return Nz;
+}
+
 int Net::getGlobalId(int i, int j, int k)
 {
     return i + j * Nx + k * Nx * Ny;

@@ -6,11 +6,8 @@
 #include <QString>
 #include "QDPoint.h"
 #include "operators.h"
+#include "index3.h"
 
-struct Index3
-{
-    int i, j, k;
-};
 
 class Net
 {
@@ -35,11 +32,17 @@ private:
 // Сетка
      int Nx, Ny, Nz;// количество точек по каждой из координат
      QVector< QVector< QVector<Index3> > > IndexOfRefPoints;// массив индексов опорных точек в дробленной сетке
+
      QVector< QVector< QVector<QDPoint> > > FNet;// массив дробленной сетки (Fragmented net)
      int getGlobalId(int i, int j, int k);// возвращает глобальный индекс узла
      void allocation();// выделение памяти
      void curvilinearAccounting();// учёт криволинейнх областей
      void createNet();
+public:
+     QDPoint getFNet(int i, int j, int k);// доступ массиву FNet
+     int sizeX();
+     int sizeY();
+     int sizeZ();
 
 
 

@@ -6,7 +6,7 @@ class QDPoint
     public:
         QDPoint();
         QDPoint(double xpos, double ypos, double zpos);
-        QDPoint &operator = (QDPoint &point_2);
+        QDPoint &operator = (const QDPoint  &point_2);
         friend QTextStream & operator << (QTextStream & out, const QDPoint &p);
         double x()const;
         double y()const;
