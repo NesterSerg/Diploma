@@ -18,8 +18,7 @@ SOURCES += main.cpp\
     operators.cpp \
     finiteelement.cpp \
     net.cpp \
-    mfe.cpp \
-    test.cpp \
+    mfe.cpp \    
     matrixlu.cpp
 
 HEADERS  += mainwindow.h \
@@ -27,8 +26,7 @@ HEADERS  += mainwindow.h \
     operators.h \
     finiteelement.h \
     net.h \
-    mfe.h \
-    test.h \
+    mfe.h \    
     matrixlu.h
 
 FORMS    += mainwindow.ui
