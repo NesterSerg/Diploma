@@ -1,12 +1,15 @@
 #ifndef NET_H
 #define NET_H
-#include <QVector>
-#include <QTextStream>
-#include <QFile>
-#include <QString>
+//#include <QVector>
+//#include <QTextStream>
+//#include <QFile>
+//#include <QString>
+//#include "index3.h"
+
+#include "lib.h"
 #include "QDPoint.h"
 #include "operators.h"
-#include "index3.h"
+
 
 
 class Net
@@ -29,13 +32,15 @@ private:
 // Криволинейные участки
      int NCL;// количество криволинейных участков(curvilinear)
      QVector<QVector<double> > CLSections;// массив криволинейных участков
+     void calcPointOnCL(QDPoint p1, QDPoint p2, QDPoint center, int Np, double CoD, Index3 index1, Index3 index2, int mode);// подсчет координат
+                                       //точек на кривол. участке по 2 крайним точкам, коэф. разрядки и числу отрезков
 // Сетка
      int Nx, Ny, Nz;// количество точек по каждой из координат
      QVector< QVector< QVector<Index3> > > IndexOfRefPoints;// массив индексов опорных точек в дробленной сетке
-
      QVector< QVector< QVector<QDPoint> > > FNet;// массив дробленной сетки (Fragmented net)
-     int getGlobalId(int i, int j, int k);// возвращает глобальный индекс узла
      void allocation();// выделение памяти
+     int getGlobalId(int i, int j, int k);// возвращает глобальный индекс узла
+
      void curvilinearAccounting();// учёт криволинейнх областей
      void createNet();
 public:

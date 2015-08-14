@@ -1,7 +1,9 @@
 #ifndef OPERATORS
 #define OPERATORS
-#include <QVector>
-#include <QDebug>
+//#include <QVector>
+//#include <QDebug>
+
+#include "lib.h"
 QVector<double>& operator+=(QVector<double> &vec1 , QVector<double> &vec2);
 
 QVector<double>& operator-=(QVector<double> &vec1 , QVector<double> &vec2);

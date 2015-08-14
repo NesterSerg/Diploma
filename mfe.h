@@ -1,6 +1,7 @@
 #ifndef MFE_H
 #define MFE_H
-#include <QObject>
+//#include <QObject>
+#include "lib.h"
 #include "net.h"
 #include "finiteelement.h"
 

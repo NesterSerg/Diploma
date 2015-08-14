@@ -1,6 +1,7 @@
 #ifndef MATRIXLU_H
 #define MATRIXLU_H
-#include<QVector>
+//#include<QVector>
+#include "lib.h"
 #include "operators.h"
 
 class MatrixLU

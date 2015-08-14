@@ -1,6 +1,8 @@
 #ifndef QDPOINT_H
 #define QDPOINT_H
-#include <QTextStream>
+//#include <QTextStream>
+
+#include "lib.h"
 class QDPoint
 {
     public:
