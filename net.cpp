@@ -404,10 +404,157 @@ void Net::calcPointOnSegments()
 Сначала высчитываем координаты точек на отрезках между опорными элементами,
 которые не образуют кривол. часть. Затем, зная координаты концов отрезка, расставляем оставшиеся.
 */
-    for(int )
+  // Обрабатываем отрезки между опорными по Ox
+    for(int k = 0; k < Nwz; k++)
+    for(int j = 0; j < Nwy; j++)
+    for(int i = 0; i < Nwx - 1; i++)
+    {
+        if(!isRPointsOnCL(IndexOfRefPoints[i][j][k], IndexOfRefPoints[i+1][j][k], 1))// если опорные точки не лежат на кривол. участке
+        {
+           // первая и последняя точка в отрезке
+           Index3 _iBegin = IndexOfRefPoints[i][j][k];
+           Index3 _iEnd = IndexOfRefPoints[i+1][j][k];
+           // вычисляем значение начального шага
+           double _hx, _hy, _hz;
+           _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+           _hx *= (1 - XCoD[i]) / pow(1 - XCoD[i], XSegments[i]);
+
+           _hy = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+           _hy *= (1 - XCoD[i]) / pow(1 - XCoD[i], XSegments[i]);
+
+           _hz = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+           _hz *= (1 - XCoD[i]) / pow(1 - XCoD[i], XSegments[i]);
+
+           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k] + _hx);
+           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k] + _hy);
+           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k] + _hz);
+
+           for(int t = 1; t < XSegments[i] - 1; t++)
+           {
+               _hx *= XCoD[i];
+               _hy *= XCoD[i];
+               _hz *= XCoD[i];
+
+               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k] + _hx);
+               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k] + _hy);
+               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k] + _hz);
+           }
+        }
+    }
+
+    // Обрабатываем отрезки между опорными по Oy
+      for(int k = 0; k < Nwz; k++)
+      for(int i = 0; i < Nwx; i++)
+      for(int j = 0; j < Nwy - 1; j++)
+      {
+          if(!isRPointsOnCL(IndexOfRefPoints[i][j][k], IndexOfRefPoints[i][j+1][k], -1))// если опорные точки не лежат на кривол. участке
+          {
+             // первая и последняя точка в отрезке
+             Index3 _iBegin = IndexOfRefPoints[i][j][k];
+             Index3 _iEnd = IndexOfRefPoints[i][j+1][k];
+             // вычисляем значение начального шага
+             double _hx, _hy, _hz;
+             _hx = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+             _hx *= (1 - YCoD[j]) / pow(1 - YCoD[j], YSegments[j]);
+
+             _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+             _hy *= (1 - YCoD[j]) / pow(1 - YCoD[j], YSegments[j]);
+
+             _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+             _hz *= (1 - ZCoD[j]) / pow(1 - ZCoD[j], ZSegments[j]);
+
+             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hx);
+             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hy);
+             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hz);
+
+             for(int t = 1; t < YSegments[j] - 1; t++)
+             {
+                 _hx *= YCoD[j];
+                 _hy *= YCoD[j];
+                 _hz *= YCoD[j];
+
+                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k] + _hx);
+                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k] + _hy);
+                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k] + _hz);
+             }
+          }
+      }
+
+      // Обрабатываем отрезки между опорными по Oz
+        for(int i = 0; i < Nwx; i++)
+        for(int j = 0; j < Nwy; j++)
+        for(int k = 0; k < Nwz - 1; k++)
+        {
+            if(!isRPointsOnCL(IndexOfRefPoints[i][j][k], IndexOfRefPoints[i][j][k+1], -10))// если опорные точки не лежат на кривол. участке
+            {
+               // первая и последняя точка в отрезке
+               Index3 _iBegin = IndexOfRefPoints[i][j][k];
+               Index3 _iEnd = IndexOfRefPoints[i][j][k+1];
+               // вычисляем значение начального шага
+               double _hx, _hy, _hz;
+               _hx = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+               _hx *= (1 - ZCoD[k]) / pow(1 - ZCoD[k], ZSegments[k]);
+
+               _hy = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+               _hy *= (1 - ZCoD[k]) / pow(1 - ZCoD[k], ZSegments[k]);
+
+               _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+               _hz *= (1 - ZCoD[k]) / pow(1 - ZCoD[k], ZSegments[k]);
+
+               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hx);
+               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hy);
+               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hz);
+
+               for(int t = 1; t < ZSegments[k] - 1; t++)
+               {
+                   _hx *= ZCoD[k];
+                   _hy *= ZCoD[k];
+                   _hz *= ZCoD[k];
+
+                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t] + _hx);
+                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t] + _hy);
+                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t] + _hz);
+               }
+            }
+        }
+
+        // Обрабатываем точки, не лежащие на отрезках, образованные опорными точками
 
 
+}
 
+bool Net::isRPointsOnCL(Index3 i1, Index3 i2, int mode)
+{
+    switch(mode)
+    {
+    case 1:
+        for(int i = 0; i < OnX.size(); i++)
+        {
+            if( (i1 == OnX[i][0] && i2 == OnX[i][1]) ||
+                (i2 == OnX[i][0] && i1 == OnX[i][1]) )
+                return true;
+        }
+        return false;
+        break;
+    case -1:
+        for(int i = 0; i < OnY.size(); i++)
+        {
+            if( (i1 == OnY[i][0] && i2 == OnY[i][1]) ||
+                (i2 == OnY[i][0] && i1 == OnY[i][1]) )
+                return true;
+        }
+        return false;
+        break;
+    case -10:
+        for(int i = 0; i < OnZ.size(); i++)
+        {
+            if( (i1 == OnZ[i][0] && i2 == OnZ[i][1]) ||
+                (i2 == OnZ[i][0] && i1 == OnZ[i][1]) )
+                return true;
+        }
+        return false;
+        break;
+    }
 }
 
 QDPoint Net::getFNet(int i, int j, int k)
