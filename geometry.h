@@ -3,7 +3,7 @@
 #include "lib.h"
 #include "QDPoint.h"
 
-double getLength3(QDPoint p1, QDPoint p2)
+double getLengthXYZ(QDPoint p1, QDPoint p2)
 {
     double result;
     result = sqrt( (p1.x()-p2.x()) * (p1.x()-p2.x()) +

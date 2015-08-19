@@ -40,6 +40,8 @@ private:
      void calcPointOnCL(QDPoint p1, QDPoint p2, QDPoint center, int Np, double CoD, Index3 index1, Index3 index2, int mode);// подсчет координат
                                        //точек на кривол. участке по 2 крайним точкам, коэф. разрядки и числу отрезков
      void calcPointOnSegments();
+     bool isRPointsOnCL(Index3 i1, Index3 i2, int mode);// проверка индексов опорных точек, явл-я ли точки кривол. или нет
+                                                        // mode - по какой оси смотрим, 1 - Ox, -1 - Oy, -10 - Oz
 // Сетка
      int Nx, Ny, Nz;// количество точек по каждой из координат
      QVector< QVector< QVector<Index3> > > IndexOfRefPoints;// массив индексов опорных точек в дробленной сетке
