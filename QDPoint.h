@@ -1,6 +1,8 @@
 #ifndef QDPOINT_H
 #define QDPOINT_H
-#include <QTextStream>
+//#include <QTextStream>
+
+#include "lib.h"
 class QDPoint
 {
     public:
@@ -23,4 +25,27 @@ class QDPoint
         double pz;
 };
 
+bool compareX(QDPoint p1, QDPointp2)
+{
+    if(abs(p1.x() - p2.x()) < CMP_EPS)
+        return true;
+    else
+        return false;
+};
+
+bool compareY(QDPoint p1, QDPointp2)
+{
+    if(abs(p1.y() - p2.y()) < CMP_EPS)
+        return true;
+    else
+        return false;
+};
+
+bool compareZ(QDPoint p1, QDPointp2)
+{
+    if(abs(p1.z() - p2.z()) < CMP_EPS)
+        return true;
+    else
+        return false;
+};
 #endif // QDPOINT_H

@@ -1,8 +1,11 @@
 #ifndef FINITEELEMENT_H
 #define FINITEELEMENT_H
-#include <QVector>
-#include <QTextStream>
-#include "index3.h"
+//#include <QVector>
+//#include <QTextStream>
+//#include "index3.h"
+
+#include "lib.h"
+
 class FiniteElement
 {
     public:

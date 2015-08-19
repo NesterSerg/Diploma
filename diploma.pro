@@ -29,7 +29,9 @@ HEADERS  += mainwindow.h \
     net.h \
     mfe.h \    
     matrixlu.h \
-    index3.h
+    index3.h \
+    geometry.h \
+    lib.h
 
 FORMS    += mainwindow.ui
 OTHER_FILES +=
