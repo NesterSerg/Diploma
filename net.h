@@ -7,7 +7,7 @@
 //#include "index3.h"
 
 #include "lib.h"
-#include "QDPoint.h"
+
 #include "operators.h"
 
 
@@ -18,6 +18,8 @@ public:
     Net();
     Net(QString& filename);
     ~Net();
+
+    void createNet();
 private:
 // Опорные точки
      int Nwx, Nwy, Nwz;// количество опорных точек по каждой координате
@@ -31,9 +33,13 @@ private:
      QVector< QVector<int> > Subareas;// массив подобластей
 // Криволинейные участки
      int NCL;// количество криволинейных участков(curvilinear)
+     int CL_X, CL_Y, CL_Z;// кол-во кривол. участвок по каждой из осей
+     QVector< QVector<Index3> > OnX, OnY, OnZ;// вектора, в которых хранятся глобальные индексы опорных узлов
+                                              // на криволинейных участках, между ними не обрабатываем
      QVector<QVector<double> > CLSections;// массив криволинейных участков
      void calcPointOnCL(QDPoint p1, QDPoint p2, QDPoint center, int Np, double CoD, Index3 index1, Index3 index2, int mode);// подсчет координат
                                        //точек на кривол. участке по 2 крайним точкам, коэф. разрядки и числу отрезков
+     void calcPointOnSegments();
 // Сетка
      int Nx, Ny, Nz;// количество точек по каждой из координат
      QVector< QVector< QVector<Index3> > > IndexOfRefPoints;// массив индексов опорных точек в дробленной сетке
@@ -42,7 +48,7 @@ private:
      int getGlobalId(int i, int j, int k);// возвращает глобальный индекс узла
 
      void curvilinearAccounting();// учёт криволинейнх областей
-     void createNet();
+
 public:
      QDPoint getFNet(int i, int j, int k);// доступ массиву FNet
      int sizeX();
