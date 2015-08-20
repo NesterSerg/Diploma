@@ -1,10 +1,6 @@
 #ifndef NET_H
 #define NET_H
-//#include <QVector>
-//#include <QTextStream>
-//#include <QFile>
-//#include <QString>
-//#include "index3.h"
+
 
 #include "lib.h"
 
@@ -56,9 +52,6 @@ public:
      int sizeX();
      int sizeY();
      int sizeZ();
-
-
-
 
 // Другие методы
      void loadInfoFromFile(QString& filename);

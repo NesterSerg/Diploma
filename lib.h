@@ -16,7 +16,7 @@
 #include "QDPoint.h"
 #include "index3.h"
 
-#define CMP_EPS 1e-10
+
 
 #endif // LIB
 

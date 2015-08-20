@@ -132,7 +132,7 @@ Z-координату находим через подобие треуголь
                 radius = getLengthXY(p1, center);
                 FNet[_i+t+1][_j][_k].setX( (cos_phi * p1.x() - sin_phi * p1.y()) / radius );
                 FNet[_i+t+1][_j][_k].setY( (cos_phi * p1.y() + sin_phi * p1.x()) / radius );
-                if(!compareZ(p1, p2))
+                if(! p1.compareZ(p2))
                     FNet[_i+t+1][_j][_k].setZ( radius / (FNet[_i+t+1][_j][_k].z() * getLengthXY(center, FNet[_i+t+1][_j][_k])));
                 else
                     FNet[_i+t+1][_j][_k].setZ(p1.z());
@@ -146,7 +146,7 @@ Z-координату находим через подобие треуголь
                   radius = getLengthXZ(p1, center);
                   FNet[_i+t+1][_j][_k].setX( (cos_phi * p1.x() - sin_phi * p1.z()) / radius );
                   FNet[_i+t+1][_j][_k].setZ( (cos_phi * p1.z() + sin_phi * p1.x()) / radius );
-                  if(!compareY(p1, p2))
+                  if(! p1.compareY(p2))
                       FNet[_i+t+1][_j][_k].setY( radius / (FNet[_i+t+1][_j][_k].y() * getLengthXZ(center, FNet[_i+t+1][_j][_k])));
                   else
                       FNet[_i+t+1][_j][_k].setY(p1.y());
@@ -165,7 +165,7 @@ Z-координату находим через подобие треуголь
                 radius = getLengthXY(p1, center);
                 FNet[_i][_j+t+1][_k].setX( (cos_phi * p1.x() - sin_phi * p1.y()) / radius );
                 FNet[_i][_j+t+1][_k].setY( (cos_phi * p1.y() + sin_phi * p1.x()) / radius );
-                if(!compareZ(p1, p2))
+                if(! p1.compareZ(p2))
                     FNet[_i][_j+t+1][_k].setZ( radius / (FNet[_i][_j+t+1][_k].z() * getLengthXY(center, FNet[_i][_j+t+1][_k])));
                 else
                     FNet[_i][_j+t+1][_k].setZ(p1.z());
@@ -179,7 +179,7 @@ Z-координату находим через подобие треуголь
                   radius = getLengthYZ(p1, center);
                   FNet[_i][_j+t+1][_k].setY( (cos_phi * p1.y() - sin_phi * p1.z()) / radius );
                   FNet[_i][_j+t+1][_k].setZ( (cos_phi * p1.z() + sin_phi * p1.y()) / radius );
-                  if(!compareX(p1, p2))
+                  if(! p1.compareX(p2))
                       FNet[_i][_j+t+1][_k].setX( radius / (FNet[_i][_j+t+1][_k].x() * getLengthYZ(center, FNet[_i][_j+t+1][_k])));
                   else
                       FNet[_i][_j+t+1][_k].setX(p1.x());
@@ -198,7 +198,7 @@ Z-координату находим через подобие треуголь
                 radius = getLengthXY(p1, center);
                 FNet[_i][_j][_k+t+1].setX( (cos_phi * p1.x() - sin_phi * p1.z()) / radius );
                 FNet[_i][_j][_k+t+1].setZ( (cos_phi * p1.z() + sin_phi * p1.x()) / radius );
-                if(!compareY(p1, p2))
+                if(! p1.compareY(p2))
                     FNet[_i][_j][_k+t+1].setY( radius / (FNet[_i][_j][_k+t+1].z() * getLengthXZ(center, FNet[_i][_j][_k+t+1])));
                 else
                     FNet[_i][_j][_k+t+1].setZ(p1.z());
@@ -212,7 +212,7 @@ Z-координату находим через подобие треуголь
                   radius = getLengthYZ(p1, center);
                   FNet[_i][_j][_k+t+1].setY( (cos_phi * p1.y() - sin_phi * p1.z()) / radius );
                   FNet[_i][_j][_k+t+1].setZ( (cos_phi * p1.z() + sin_phi * p1.y()) / radius );
-                  if(!compareX(p1, p2))
+                  if(! p1.compareX(p2))
                       FNet[_i][_j][_k+t+1].setX( radius / (FNet[_i][_j][_k+t+1].x() * getLengthYZ(center, FNet[_i][_j][_k+t+1])));
                   else
                       FNet[_i][_j][_k+t+1].setX(p1.x());
@@ -425,9 +425,9 @@ void Net::calcPointOnSegments()
            _hz = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
            _hz *= (1 - XCoD[i]) / pow(1 - XCoD[i], XSegments[i]);
 
-           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k] + _hx);
-           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k] + _hy);
-           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k] + _hz);
+           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
+           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].y() + _hy);
+           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].z() + _hz);
 
            for(int t = 1; t < XSegments[i] - 1; t++)
            {
@@ -435,9 +435,9 @@ void Net::calcPointOnSegments()
                _hy *= XCoD[i];
                _hz *= XCoD[i];
 
-               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k] + _hx);
-               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k] + _hy);
-               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k] + _hz);
+               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
+               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].y() + _hy);
+               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].z() + _hz);
            }
         }
     }
@@ -463,9 +463,9 @@ void Net::calcPointOnSegments()
              _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
              _hz *= (1 - ZCoD[j]) / pow(1 - ZCoD[j], ZSegments[j]);
 
-             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hx);
-             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hy);
-             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hz);
+             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
+             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
+             FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
 
              for(int t = 1; t < YSegments[j] - 1; t++)
              {
@@ -473,9 +473,9 @@ void Net::calcPointOnSegments()
                  _hy *= YCoD[j];
                  _hz *= YCoD[j];
 
-                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k] + _hx);
-                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k] + _hy);
-                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k] + _hz);
+                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].x() + _hx);
+                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].y() + _hy);
+                 FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].z() + _hz);
              }
           }
       }
@@ -501,9 +501,9 @@ void Net::calcPointOnSegments()
                _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
                _hz *= (1 - ZCoD[k]) / pow(1 - ZCoD[k], ZSegments[k]);
 
-               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hx);
-               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hy);
-               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k] + _hz);
+               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
+               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
+               FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
 
                for(int t = 1; t < ZSegments[k] - 1; t++)
                {
@@ -511,9 +511,9 @@ void Net::calcPointOnSegments()
                    _hy *= ZCoD[k];
                    _hz *= ZCoD[k];
 
-                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t] + _hx);
-                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t] + _hy);
-                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t] + _hz);
+                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t].x() + _hx);
+                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t].y() + _hy);
+                   FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t].z() + _hz);
                }
             }
         }
@@ -528,7 +528,7 @@ bool Net::isRPointsOnCL(Index3 i1, Index3 i2, int mode)
     switch(mode)
     {
     case 1:
-        for(int i = 0; i < OnX.size(); i++)
+        for(int i = 0; i < OnX.size(); i++)// не было оператора равнения
         {
             if( (i1 == OnX[i][0] && i2 == OnX[i][1]) ||
                 (i2 == OnX[i][0] && i1 == OnX[i][1]) )
@@ -674,11 +674,11 @@ void Net::loadInfoFromFile(QString& filename)
     // Считаем кол-во искривлений по каждой из осей
         for(int i = 0; i < NCL; i++)
         {
-            switch(CLSections[i][0])
+            switch(int(CLSections[i][0])) // на самом деле хз как оно будет работать, допустим дабл 1 это 0.999999 и в инт приедется как 0, но тут мб подругому
             case 1:
                 CL_X++;
                 break;
-            case -1:
+            case -1:   // нельзя отрицательные числа
                 CL_Y++;
                 break;
             case -10:
