@@ -6,7 +6,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    create_menu();
+    create_menu();    
+    ui->MainLayout->setStretchFactor(ui->OpenglLayout,9);
+    ui->MainLayout->setStretchFactor(ui->MenuLayout,1);
+
+
 }
 
 MainWindow::~MainWindow()

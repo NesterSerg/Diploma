@@ -13,5 +13,10 @@ void Index3::setIndex(int i, int j, int k)
 
 }
 
+bool Index3::operator ==(const Index3 &ind2) const
+{
+    return this->i == ind2.i && this->j == ind2.j && this->k == ind2.k;
+}
+
 
 

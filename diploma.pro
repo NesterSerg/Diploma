@@ -4,9 +4,10 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       +=  gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 
 TARGET = diploma
 TEMPLATE = app
@@ -20,7 +21,8 @@ SOURCES += main.cpp\
     net.cpp \
     mfe.cpp \    
     matrixlu.cpp \
-    index3.cpp
+    index3.cpp \
+    myglwidget.cpp
 
 HEADERS  += mainwindow.h \
     QDPoint.h \
@@ -31,7 +33,8 @@ HEADERS  += mainwindow.h \
     matrixlu.h \
     index3.h \
     geometry.h \
-    lib.h
+    lib.h \
+    myglwidget.h
 
 FORMS    += mainwindow.ui
 OTHER_FILES +=

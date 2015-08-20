@@ -73,3 +73,27 @@ void QDPoint::setZ(double z)
     pz = z;
 }
 
+bool QDPoint::compareX(const QDPoint &p2)
+{
+    if(fabs(this->x() - p2.x()) < CMP_EPS)
+        return true;
+    else
+        return false;
+}
+
+bool QDPoint::compareY(const QDPoint &p2)
+{
+    if(fabs(this->y() - p2.y()) < CMP_EPS)
+        return true;
+    else
+        return false;
+}
+
+bool QDPoint::compareZ(const QDPoint &p2)
+{
+    if(fabs(this->z() - p2.z()) < CMP_EPS)
+        return true;
+    else
+        return false;
+}
+
