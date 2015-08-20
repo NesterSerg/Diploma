@@ -30,13 +30,25 @@ III. Поворачиваем начальную точку на соотв. у�
     double _i = index1.i, _j = index1.j, _k = index1.k;
 
   // Вычисляем длины интервалов по соотв. координатам
-    lengthX = getLengthX(p1, p2);
-    lengthY = getLengthY(p1, p2);
-    lengthZ = getLengthZ(p1, p2);
+    //lengthX = getLengthX(p1, p2);
+    //lengthY = getLengthY(p1, p2);
+    //lengthZ = getLengthZ(p1, p2);
+    lengthX = p2.x() - p1.x();
+    lengthY = p2.y() - p1.y();
+    lengthZ = p2.z() - p1.z();
   // Вычисляем величину начального шага
-    hx = lengthX * ((1-CoD)/pow(1-CoD, Np));
-    hy = lengthY * ((1-CoD)/pow(1-CoD, Np));
-    hz = lengthZ * ((1-CoD)/pow(1-CoD, Np));
+    if(fabs(1-CoD) > 1e-10)
+    {
+        hx = lengthX * ((1-CoD)/(1-pow(CoD, Np)));
+        hy = lengthY * ((1-CoD)/(1-pow(CoD, Np)));
+        hz = lengthZ * ((1-CoD)/(1-pow(CoD, Np)));
+    }
+    else
+    {
+        hx = lengthX / Np;
+        hy = lengthY / Np;
+        hz = lengthZ / Np;
+    }
   // Обрабатываем 1 доп. точку
     switch(mode)
     {
@@ -109,43 +121,60 @@ alpha+phi - полярный угол новой точки
 
 Z-координату находим через подобие треугольников
 */
-    double ax, ay, az, bx, by, bz; // элементы направляющих векторов
     double cos_phi, sin_phi, radius;// угол между прямыми и радиус
-// основная прямая
-    ax = center.x() - FNet[_i][_j][_k].x();
-    ay = center.y() - FNet[_i][_j][_k].y();
-    az = center.z() - FNet[_i][_j][_k].z();
+    bool reverse = false;// флаг для отслеживания смены точек
 // работа с доп. прямыми
     for(int t = 0; t < Np-1; t++)
     {
         switch(mode)
         {
         case 1:
-            bx = center.x() - FNet[_i+t+1][_j][_k].x();
-            by = center.y() - FNet[_i+t+1][_j][_k].y();
-            bz = center.z() - FNet[_i+t+1][_j][_k].z();
-            if(abs(getLengthXY(p1, center) - getLengthXY(p2, center)))// если окружность цилиндра в XY плоскости
+            if(checkPlaneZ(p1, p2))// если окружность цилиндра в XY плоскости
             {
               // считаем угол в осях XY
-                cos_phi = (ax*bx+ay*by) / ( sqrt(ax*ax+ay*ay) * sqrt(bx*bx+by*by) );
+                // косинус считаем по теореме косинусов
+                cos_phi = cosXY(center, FNet[_i][_j][_k], FNet[_i+t+1][_j][_k]);
                 sin_phi = sqrt(1 - cos_phi * cos_phi);
                 radius = getLengthXY(p1, center);
-                FNet[_i+t+1][_j][_k].setX( (cos_phi * p1.x() - sin_phi * p1.y()) / radius );
-                FNet[_i+t+1][_j][_k].setY( (cos_phi * p1.y() + sin_phi * p1.x()) / radius );
+                //if(placeOfPointXY(FNet[_i][_j][_k], FNet[_i+t+1][_j][_k], center) > 0)
+
+                if(placeOfPointXY(p1, p2, center) > 0)
+                {
+
+                    FNet[_i+t+1][_j][_k].setX(center.x() + (cos_phi * (-center.x() + p1.x()) - sin_phi * (-center.y() + p1.y()) ));
+                    FNet[_i+t+1][_j][_k].setY(center.y() + (cos_phi * (-center.y() + p1.y()) + sin_phi * (-center.x() + p1.x()) ));
+                }
+                else
+                {
+
+                    FNet[_i+t+1][_j][_k].setX(center.x() + (cos_phi * (-center.x() + p1.x()) + sin_phi * (-center.y() + p1.y()) ));
+                    FNet[_i+t+1][_j][_k].setY(center.y() + (cos_phi * (-center.y() + p1.y()) - sin_phi * (-center.x() + p1.x()) ));
+                }
                 if(! p1.compareZ(p2))
                     FNet[_i+t+1][_j][_k].setZ( radius / (FNet[_i+t+1][_j][_k].z() * getLengthXY(center, FNet[_i+t+1][_j][_k])));
                 else
                     FNet[_i+t+1][_j][_k].setZ(p1.z());
             }
             else
-            if(abs(getLengthXZ(p1, center) - getLengthXZ(p2, center)))// окружность цилиндра лежит в XZ плоскости
+            if(checkPlaneY(p1, p2))// окружность цилиндра лежит в XZ плоскости
             {
                 // считаем угол в осях XZ
-                  cos_phi = (ax*bx+az*bz) / ( sqrt(ax*ax+az*az) * sqrt(bx*bx+bz*bz) );
+                  cos_phi = cosXZ(center, FNet[_i][_j][_k], FNet[_i+t+1][_j][_k]);
                   sin_phi = sqrt(1 - cos_phi * cos_phi);
                   radius = getLengthXZ(p1, center);
-                  FNet[_i+t+1][_j][_k].setX( (cos_phi * p1.x() - sin_phi * p1.z()) / radius );
-                  FNet[_i+t+1][_j][_k].setZ( (cos_phi * p1.z() + sin_phi * p1.x()) / radius );
+
+                  if(placeOfPointXZ(p1, p2, center) > 0)
+                  {
+
+                      FNet[_i+t+1][_j][_k].setX(center.x() +  (cos_phi * (-center.x() + p1.x()) - sin_phi * (-center.z() + p1.z()) ));
+                      FNet[_i+t+1][_j][_k].setZ(center.z() +  (cos_phi * (-center.z() + p1.z()) + sin_phi * (-center.x() + p1.x()) ));
+                  }
+                  else
+                  {
+
+                      FNet[_i+t+1][_j][_k].setX(center.x() +  (cos_phi * (-center.x() + p1.x()) + sin_phi * (-center.z() + p1.z()) ));
+                      FNet[_i+t+1][_j][_k].setZ(center.z() +  (cos_phi * (-center.z() + p1.z()) - sin_phi * (-center.x() + p1.x()) ));
+                  }
                   if(! p1.compareY(p2))
                       FNet[_i+t+1][_j][_k].setY( radius / (FNet[_i+t+1][_j][_k].y() * getLengthXZ(center, FNet[_i+t+1][_j][_k])));
                   else
@@ -153,32 +182,51 @@ Z-координату находим через подобие треуголь
             }
             break;
         case -1:
-            bx = center.x() - FNet[_i][_j+t+1][_k].x();
-            by = center.y() - FNet[_i][_j+t+1][_k].y();
-            bz = center.z() - FNet[_i][_j+t+1][_k].z();
-
-            if(abs(getLengthXY(p1, center) - getLengthXY(p2, center)))// если окружность цилиндра в XY плоскости
+            if(checkPlaneZ(p1, p2))// если окружность цилиндра в XY плоскости
             {
               // считаем угол в осях XY
-                cos_phi = (ax*bx+ay*by) / ( sqrt(ax*ax+ay*ay) * sqrt(bx*bx+by*by) );
+                cos_phi = cosXY(center, FNet[_i][_j][_k], FNet[_i][_j+t+1][_k]);
                 sin_phi = sqrt(1 - cos_phi * cos_phi);
                 radius = getLengthXY(p1, center);
-                FNet[_i][_j+t+1][_k].setX( (cos_phi * p1.x() - sin_phi * p1.y()) / radius );
-                FNet[_i][_j+t+1][_k].setY( (cos_phi * p1.y() + sin_phi * p1.x()) / radius );
+                //if(placeOfPointXY(FNet[_i][_j][_k], FNet[_i][_j+t+1][_k], center) > 0)
+
+                if(placeOfPointXY(p1, p2, center) > 0)
+                {
+
+                    FNet[_i][_j+t+1][_k].setX( center.x() +  (cos_phi * (-center.x() + p1.x()) - sin_phi * (-center.y() + p1.y()) ));
+                    FNet[_i][_j+t+1][_k].setY( center.y() +  (cos_phi * (-center.y() + p1.y()) + sin_phi * (-center.x() + p1.x()) ));
+                }
+                else
+                {
+
+                    FNet[_i][_j+t+1][_k].setX( center.x() +  (cos_phi * (-center.x() + p1.x()) + sin_phi * (-center.y() + p1.y()) ));
+                    FNet[_i][_j+t+1][_k].setY( center.y() +  (cos_phi * (-center.y() + p1.y()) - sin_phi * (-center.x() + p1.x()) ));
+                }
                 if(! p1.compareZ(p2))
                     FNet[_i][_j+t+1][_k].setZ( radius / (FNet[_i][_j+t+1][_k].z() * getLengthXY(center, FNet[_i][_j+t+1][_k])));
                 else
                     FNet[_i][_j+t+1][_k].setZ(p1.z());
             }
             else
-            if(abs(getLengthXZ(p1, center) - getLengthXZ(p2, center)))// окружность цилиндра лежит в YZ плоскости
+            if(checkPlaneX(p1, p2))// окружность цилиндра лежит в YZ плоскости
             {
                 // считаем угол в осях YZ
-                  cos_phi = (ay*by+az*bz) / ( sqrt(ay*ay+az*az) * sqrt(by*by+bz*bz) );
+                  cos_phi = cosYZ(center, FNet[_i][_j][_k], FNet[_i][_j+t+1][_k]);
                   sin_phi = sqrt(1 - cos_phi * cos_phi);
                   radius = getLengthYZ(p1, center);
-                  FNet[_i][_j+t+1][_k].setY( (cos_phi * p1.y() - sin_phi * p1.z()) / radius );
-                  FNet[_i][_j+t+1][_k].setZ( (cos_phi * p1.z() + sin_phi * p1.y()) / radius );
+                  //if(placeOfPointYZ(FNet[_i][_j][_k], FNet[_i][_j+t+1][_k], center) > 0)
+                  if(placeOfPointYZ(p1, p2, center) > 0)
+                  {
+
+                      FNet[_i][_j+t+1][_k].setY( center.y() + (cos_phi * (-center.y() + p1.y()) - sin_phi * (-center.z() + p1.z()) ));
+                      FNet[_i][_j+t+1][_k].setZ( center.z() + (cos_phi * (-center.z() + p1.z()) + sin_phi * (-center.y() + p1.y()) ));
+                  }
+                  else
+                  {
+
+                      FNet[_i][_j+t+1][_k].setY( center.y() + (cos_phi * (-center.y() + p1.y()) + sin_phi * (-center.z() + p1.z()) ));
+                      FNet[_i][_j+t+1][_k].setZ( center.z() + (cos_phi * (-center.z() + p1.z()) - sin_phi * (-center.y() + p1.y()) ));
+                  }
                   if(! p1.compareX(p2))
                       FNet[_i][_j+t+1][_k].setX( radius / (FNet[_i][_j+t+1][_k].x() * getLengthYZ(center, FNet[_i][_j+t+1][_k])));
                   else
@@ -186,32 +234,52 @@ Z-координату находим через подобие треуголь
             }
             break;
         case -10:
-            bx = center.x() - FNet[_i][_j][_k+t+1].x();
-            by = center.y() - FNet[_i][_j][_k+t+1].y();
-            bz = center.z() - FNet[_i][_j][_k+t+1].z();
-
-            if(abs(getLengthXY(p1, center) - getLengthXY(p2, center)))// если окружность цилиндра в XZ плоскости
+            if(checkPlaneY(p1, p2))// если окружность цилиндра в XZ плоскости
             {
               // считаем угол в осях XZ
-                cos_phi = (ax*bx+az*bz) / ( sqrt(ax*ax+az*az) * sqrt(bx*bx+bz*bz) );
+                cos_phi = cosXZ(center, FNet[_i][_j][_k], FNet[_i][_j][_k+t+1]);
                 sin_phi = sqrt(1 - cos_phi * cos_phi);
-                radius = getLengthXY(p1, center);
-                FNet[_i][_j][_k+t+1].setX( (cos_phi * p1.x() - sin_phi * p1.z()) / radius );
-                FNet[_i][_j][_k+t+1].setZ( (cos_phi * p1.z() + sin_phi * p1.x()) / radius );
+                radius = getLengthXZ(p1, center);
+                //if(placeOfPointXZ(FNet[_i][_j][_k], FNet[_i][_j][_k+t+1], center) > 0)
+
+                if(placeOfPointXZ(p1, p2, center) > 0)
+                {
+
+                    FNet[_i][_j][_k+t+1].setX( center.y() + (cos_phi * (-center.x() + p1.x()) - sin_phi * (-center.z() + p1.z())  ));
+                    FNet[_i][_j][_k+t+1].setZ( center.z() + (cos_phi * (-center.z() + p1.z()) + sin_phi * (-center.x() + p1.x())  ));
+                }
+                else
+                {
+
+                    FNet[_i][_j][_k+t+1].setX( center.y() + (cos_phi * (-center.x() + p1.x()) + sin_phi * (-center.z() + p1.z())  ));
+                    FNet[_i][_j][_k+t+1].setZ( center.z() + (cos_phi * (-center.z() + p1.z()) - sin_phi * (-center.x() + p1.x())  ));
+                }
                 if(! p1.compareY(p2))
                     FNet[_i][_j][_k+t+1].setY( radius / (FNet[_i][_j][_k+t+1].z() * getLengthXZ(center, FNet[_i][_j][_k+t+1])));
                 else
-                    FNet[_i][_j][_k+t+1].setZ(p1.z());
+                    FNet[_i][_j][_k+t+1].setY(p1.z());
             }
             else
-            if(abs(getLengthXZ(p1, center) - getLengthXZ(p2, center)))// окружность цилиндра лежит в YZ плоскости
+            if(fabs(getLengthYZ(p1, center) - getLengthYZ(p2, center)))// окружность цилиндра лежит в YZ плоскости
             {
                 // считаем угол в осях YZ
-                  cos_phi = (ay*by+az*bz) / ( sqrt(ay*ay+az*az) * sqrt(by*by+bz*bz) );
+                  cos_phi = placeOfPointYZ(FNet[_i][_j][_k], FNet[_i][_j][_k+t+1], center) * cosYZ(center, FNet[_i][_j][_k], FNet[_i][_j][_k+t+1]);
                   sin_phi = sqrt(1 - cos_phi * cos_phi);
                   radius = getLengthYZ(p1, center);
-                  FNet[_i][_j][_k+t+1].setY( (cos_phi * p1.y() - sin_phi * p1.z()) / radius );
-                  FNet[_i][_j][_k+t+1].setZ( (cos_phi * p1.z() + sin_phi * p1.y()) / radius );
+                  //if(cos_phi > 0)
+
+                  if(placeOfPointYZ(p1, p2, center) > 0)
+                  {
+
+                      FNet[_i][_j][_k+t+1].setY( center.y() + (cos_phi * (-center.y() + p1.y()) - sin_phi * (-center.z() + p1.z()) ));
+                      FNet[_i][_j][_k+t+1].setZ( center.z() + (cos_phi * (-center.z() + p1.z()) + sin_phi * (-center.y() + p1.y()) ));
+                  }
+                  else
+                  {
+
+                      FNet[_i][_j][_k+t+1].setY( center.y() + (cos_phi * (-center.y() + p1.y()) + sin_phi * (-center.z() + p1.z()) ));
+                      FNet[_i][_j][_k+t+1].setZ( center.z() + (cos_phi * (-center.z() + p1.z()) - sin_phi * (-center.y() + p1.y()) ));
+                  }
                   if(! p1.compareX(p2))
                       FNet[_i][_j][_k+t+1].setX( radius / (FNet[_i][_j][_k+t+1].x() * getLengthYZ(center, FNet[_i][_j][_k+t+1])));
                   else
@@ -250,7 +318,10 @@ void Net::curvilinearAccounting()
         case 1:// если искривление по горизонтали (по оси X)
         // вычисляем индексы крайних точек в р. сетке
           // индекс по Z
-            _index1.k = _index2.k = CLSections[m][1] - 1;// уровень по Z - 1
+            _index1.k = 0;
+            for(_t = 0; _t < CLSections[m][1] - 1; _t++)
+                _index1.k += ZSegments[_t];
+            _index2.k = _index1.k;
           // индекс по X
             _index1.i = 0;
             for(_t = 0; _t < CLSections[m][3] - 1; _t++)// сдвигаемся по оси X в нужный узел
@@ -279,17 +350,20 @@ void Net::curvilinearAccounting()
         case -1:// если искривление по вертикали (по оси Y)
             // вычисляем индексы крайних точек в р. сетке
               // индекс по Z
-                _index1.k = _index2.k = CLSections[m][1] - 1;// уровень по Z - 1
+            _index1.k = 0;
+            for(_t = 0; _t < CLSections[m][1] - 1; _t++)
+                _index1.k += ZSegments[_t];
+            _index2.k = _index1.k;
               // индекс по X
                 _index1.i = 0;
-                for(_t = 0; _t < CLSections[m][2] - 1; _t++)// сдвигаемся по оси X в нужный узел
+                for(_t = 0; _t < CLSections[m][3] - 1; _t++)// сдвигаемся по оси Y в нужный узел
                     _index1.i += XSegments[_t];
-                _index2.i = _index1.i + XSegments[_t];
+                _index2.i = _index1.i;
               // индекс по Y
                 _index1.j = 0;
-                for(_t = 0; _t < CLSections[m][3] - 1; _t++)// сдвигаемся по оси Y в нужный узел
+                for(_t = 0; _t < CLSections[m][2] - 1; _t++)// сдвигаемся по оси X в нужный узел
                      _index1.j += YSegments[_t];
-                 _index2.j =  _index1.j;
+                 _index2.j =  _index1.j + YSegments[_t];
               // сохраняем индексы
                  OnY[_j][0] = _index1;
                  OnY[_j][1] = _index2;
@@ -307,8 +381,11 @@ void Net::curvilinearAccounting()
         case -10:// если искривление по оси Z
             // вычисляем индексы крайних точек в р. сетке
               // индекс по Z
-            _index1.k = CLSections[m][1] - 1;
-            _index2.k = CLSections[m][1];
+            _index1.k = 0;
+            for(_t = 0; _t < CLSections[m][0] - 1; _t++)
+                _index1.k += ZSegments[_t];
+            _index2.k = _index1.k + ZSegments[_t];
+
             _index1.i = 0;
             for(_t = 0; _t < CLSections[m][3] - 1; _t++)// сдвигаемся по оси X в нужный узел
                 _index1.i += XSegments[_t];
@@ -417,13 +494,13 @@ void Net::calcPointOnSegments()
            // вычисляем значение начального шага
            double _hx, _hy, _hz;
            _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-           _hx *= (1 - XCoD[i]) / pow(1 - XCoD[i], XSegments[i]);
+           _hx *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
 
            _hy = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-           _hy *= (1 - XCoD[i]) / pow(1 - XCoD[i], XSegments[i]);
+           _hy *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
 
            _hz = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-           _hz *= (1 - XCoD[i]) / pow(1 - XCoD[i], XSegments[i]);
+           _hz *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
 
            FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
            FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].y() + _hy);
@@ -455,13 +532,13 @@ void Net::calcPointOnSegments()
              // вычисляем значение начального шага
              double _hx, _hy, _hz;
              _hx = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-             _hx *= (1 - YCoD[j]) / pow(1 - YCoD[j], YSegments[j]);
+             _hx *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
 
              _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-             _hy *= (1 - YCoD[j]) / pow(1 - YCoD[j], YSegments[j]);
+             _hy *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
 
              _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-             _hz *= (1 - ZCoD[j]) / pow(1 - ZCoD[j], ZSegments[j]);
+             _hz *= (1 - ZCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
 
              FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
              FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
@@ -493,13 +570,13 @@ void Net::calcPointOnSegments()
                // вычисляем значение начального шага
                double _hx, _hy, _hz;
                _hx = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-               _hx *= (1 - ZCoD[k]) / pow(1 - ZCoD[k], ZSegments[k]);
+               _hx *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
 
                _hy = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-               _hy *= (1 - ZCoD[k]) / pow(1 - ZCoD[k], ZSegments[k]);
+               _hy *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
 
                _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-               _hz *= (1 - ZCoD[k]) / pow(1 - ZCoD[k], ZSegments[k]);
+               _hz *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
 
                FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
                FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
@@ -589,6 +666,8 @@ void Net::createNet()
     QString filename = "NetInfo.txt";
     loadInfoFromFile(filename);
     allocation();// выделяем память под элементы, подсчитываем индексы опорных точек в сетке
+    curvilinearAccounting();// генерируем точки на кривол. участках
+    calcPointOnSegments();// генерируем точки на отрезках между опорными точками (не кривол.)
 }
 
 void Net::loadInfoFromFile(QString& filename)
@@ -675,15 +754,17 @@ void Net::loadInfoFromFile(QString& filename)
         for(int i = 0; i < NCL; i++)
         {
             switch(int(CLSections[i][0])) // на самом деле хз как оно будет работать, допустим дабл 1 это 0.999999 и в инт приедется как 0, но тут мб подругому
-            case 1:
-                CL_X++;
-                break;
-            case -1:   // нельзя отрицательные числа
-                CL_Y++;
-                break;
-            case -10:
-                CL_Z++;
-                break;
+            {
+                case 1:
+                    CL_X++;
+                    break;
+                case -1:   // нельзя отрицательные числа
+                    CL_Y++;
+                    break;
+                case -10:
+                    CL_Z++;
+                    break;
+            }
         }
 
     // Сортируем по X, Y, Z (первый элемент в массивах)
