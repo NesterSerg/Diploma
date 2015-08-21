@@ -6,6 +6,11 @@ Net::Net()
 
 }
 
+Net::Net(QString &dir)
+{
+
+}
+
 Net::~Net()
 {
 
@@ -661,10 +666,10 @@ int Net::sizeZ()
 Остальное
 */
 
-void Net::createNet()
+void Net::createNet(QString& dir)
 {
-    QString filename = "NetInfo.txt";
-    loadInfoFromFile(filename);
+    QString str = dir + "/NetInfo.txt";
+    loadInfoFromFile(str);
     allocation();// выделяем память под элементы, подсчитываем индексы опорных точек в сетке
     curvilinearAccounting();// генерируем точки на кривол. участках
     calcPointOnSegments();// генерируем точки на отрезках между опорными точками (не кривол.)
@@ -672,7 +677,7 @@ void Net::createNet()
 
 void Net::loadInfoFromFile(QString& filename)
 {
-    QFile file("C:\\Users\\Danil\\Desktop\\diploma\\NetInfo.txt");
+    QFile file(filename);
 
     if(file.open(QIODevice::ReadOnly))
     {

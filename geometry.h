@@ -111,7 +111,7 @@ double cosYZ(QDPoint &center, QDPoint &p1, QDPoint &p2)
     return cos_phi;
 }
 
-int placeOfPointXY(QDPoint &p1, QDPoint &p2, QDPoint p)
+int placeOfPointXY(QDPoint &p1, QDPoint &p2, QDPoint &p)
 {
     if( (p1.y()-p2.y()) * p.x() + (p2.x() - p1.x()) * p.y() + (p1.x() * p2.y() - p2.x() * p1.y()) < 0)
         return -1;
@@ -119,7 +119,7 @@ int placeOfPointXY(QDPoint &p1, QDPoint &p2, QDPoint p)
         return 1;
 }
 
-int placeOfPointXZ(QDPoint &p1, QDPoint &p2, QDPoint p)
+int placeOfPointXZ(QDPoint &p1, QDPoint &p2, QDPoint &p)
 {
     if( (p1.z()-p2.z()) * p.x() + (p2.x() - p1.x()) * p.z() + (p1.x() * p2.z() - p2.x() * p1.z()) < 0)
         return -1;
@@ -127,7 +127,7 @@ int placeOfPointXZ(QDPoint &p1, QDPoint &p2, QDPoint p)
         return 1;
 }
 
-int placeOfPointYZ(QDPoint &p1, QDPoint &p2, QDPoint p)
+int placeOfPointYZ(QDPoint &p1, QDPoint &p2, QDPoint &p)
 {
     if( (p1.y()-p2.y()) * p.z() + (p2.z() - p1.z()) * p.y() + (p1.z() * p2.y() - p2.z() * p1.y()) < 0)
         return -1;

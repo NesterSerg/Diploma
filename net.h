@@ -12,10 +12,10 @@ class Net
 {
 public:
     Net();
-    Net(QString& filename);
+    Net(QString& dir);
     ~Net();
 
-    void createNet();
+    void createNet(QString& dir);
 private:
 // Опорные точки
      int Nwx, Nwy, Nwz;// количество опорных точек по каждой координате
@@ -46,15 +46,15 @@ private:
      int getGlobalId(int i, int j, int k);// возвращает глобальный индекс узла
 
      void curvilinearAccounting();// учёт криволинейнх областей
-
+     // Другие методы
+          void loadInfoFromFile(QString& filename);
 public:
      QDPoint getFNet(int i, int j, int k);// доступ массиву FNet
      int sizeX();
      int sizeY();
      int sizeZ();
 
-// Другие методы
-     void loadInfoFromFile(QString& filename);
+
 };
 
 #endif // NET_H
