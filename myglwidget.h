@@ -5,11 +5,21 @@
 #include <QOpenGLContext>
 #include <QOpenGLFunctions_4_1_Compatibility>
 
+//#include <QGLWidget>
+//#include <QtOpenGL>
+//#include <QtWidgets>
+#include <QMouseEvent>
+#include <QKeyEvent>
+
+
+
 #include <QUuid>
+
 #include "Net.h"
 class MyGLWidget :  public QOpenGLWidget, protected QOpenGLFunctions
 {
 public:
+
     Net *net;
     MyGLWidget(QWidget *parent);
     void drawNet();

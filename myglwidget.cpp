@@ -57,37 +57,38 @@ void MyGLWidget::setNet(Net *n)
 
 void MyGLWidget::initializeGL()
 {
+    f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_1_Compatibility>();
     initializeOpenGLFunctions();// типо функции опенджл, вот только не все
     glClearColor(248./255, 244./255, 1, 0);
     glEnable(GL_DEPTH_TEST);
-    glShadeModel(GL_SMOOTH);//GL_SMOOTH
-
-
-    GLfloat light0_position[] = { 0.0, 2, 0, 1.0 };
-    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-    GLfloat light0_diffuse[] = {1, 1, 1};
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-
-    GLfloat ambience[] = {1.0f, 1.0f, 1.0f, 0.0};
-    glLightfv(GL_LIGHT0, GL_AMBIENT,  ambience);
-    GLfloat  light0_specular[] = { 1, 1, 1, 1} ;
-    glLightfv ( GL_LIGHT0, GL_SPECULAR, light0_specular );
-    glEnable(GL_NORMALIZE);
+    //glShadeModel(GL_SMOOTH);//GL_SMOOTH
+    //
+    //
+    //GLfloat light0_position[] = { 0.0, 2, 0, 1.0 };
+    //glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+    //GLfloat light0_diffuse[] = {1, 1, 1};
+    //glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+    //
+    //GLfloat ambience[] = {1.0f, 1.0f, 1.0f, 0.0};
+    //glLightfv(GL_LIGHT0, GL_AMBIENT,  ambience);
+    //GLfloat  light0_specular[] = { 1, 1, 1, 1} ;
+    //glLightfv ( GL_LIGHT0, GL_SPECULAR, light0_specular );
+    //glEnable(GL_NORMALIZE);
 
 
 }
 
 void MyGLWidget::resizeGL(int nWidth, int nHeight)
 {
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
+    f->glMatrixMode(GL_PROJECTION);
+    f->glLoadIdentity();
 
     GLfloat ratio=(GLfloat)nHeight/(GLfloat)nWidth;
 
     if (nWidth>=nHeight)
-       glOrtho(-3.0/ratio, 3.0/ratio, -3.0, 3.0, -10.0, 10.0);
+       f->glOrtho(-3.0/ratio, 3.0/ratio, -3.0, 3.0, -10.0, 10.0);
     else
-       glOrtho(-3.0, 3.0, -3.0*ratio, 3.0*ratio, -10.0, 10.0);
+       f->glOrtho(-3.0, 3.0, -3.0*ratio, 3.0*ratio, -10.0, 10.0);
 
     glViewport(0, 0, (GLint)nWidth, (GLint)nHeight);
 }
@@ -116,14 +117,14 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent* pe)
 
    ptrMousePosition = pe->pos();
 
-   updateGL();
+   this->update();
 }
 
 void MyGLWidget::wheelEvent(QWheelEvent* pe)
 {
    if ((pe->delta())>0) scale_plus(); else if ((pe->delta())<0) scale_minus();
 
-   updateGL();
+   this->update();
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent* pe)
@@ -175,7 +176,7 @@ void MyGLWidget::keyPressEvent(QKeyEvent* pe)
       break;
    }
 
-   updateGL();
+   this->update();
 }
 
 void MyGLWidget::scale_plus()
