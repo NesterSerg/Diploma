@@ -65,6 +65,8 @@ void MainWindow::selectDirectory()
 
 void MainWindow::on_pushButton_clicked()
 {
+
     Net net;
     net.createNet(directory);
+    //ui->GLWidget->setNet(&net);
 }
