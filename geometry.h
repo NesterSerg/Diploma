@@ -113,26 +113,204 @@ double cosYZ(QDPoint &center, QDPoint &p1, QDPoint &p2)
 
 int placeOfPointXY(QDPoint &p1, QDPoint &p2, QDPoint &p)
 {
-    if( (p1.y()-p2.y()) * p.x() + (p2.x() - p1.x()) * p.y() + (p1.x() * p2.y() - p2.x() * p1.y()) < 0)
-        return -1;
+// Определим четверть окружности
+    int q1, q2;// номер четверти для каждой точки
+    if(p1.x() >= p.x() && p1.y() >= p.y())
+        q1 = 1;
     else
-        return 1;
+    if(p1.x() < p.x() && p1.y() > p.y())
+        q1 = 2;
+    else
+    if(p1.x() <= p.x() && p1.y() <= p.y())
+        q1 = 3;
+    else
+        q1 = 4;
+
+    if(p2.x() >= p.x() && p2.y() >= p.y())
+        q2 = 1;
+    else
+    if(p2.x() < p.x() && p2.y() > p.y())
+        q2 = 2;
+    else
+    if(p2.x() <= p.x() && p2.y() <= p.y())
+        q2 = 3;
+    else
+        q2 = 4;
+
+    if(q1 != q2)
+    {
+        qDebug() << "Точки криволинейного отрезка лежат в разных четвертях окружности!\n";
+        return 0;
+    }
+    else
+    {
+        switch(q1)
+        {
+        case 1:
+            if(p1.y() > p2.y())
+                return -1;
+            else
+                return 1;
+            break;
+        case 2:
+            if(p1.y() > p2.y())
+                return 1;
+            else
+                return -1;
+            break;
+        case 3:
+            if(p1.y() > p2.y())
+                return 1;
+            else
+                return -1;
+            break;
+        case 4:
+            if(p1.y() > p2.y())
+                return -1;
+            else
+                return 1;
+            break;
+        }
+    }
+
+   //if( (p1.y()-p2.y()) * p.x() + (p2.x() - p1.x()) * p.y() + (p1.x() * p2.y() - p2.x() * p1.y()) < 0)
+   //    return -1;
+   //else
+   //    return 1;
 }
 
 int placeOfPointXZ(QDPoint &p1, QDPoint &p2, QDPoint &p)
 {
-    if( (p1.z()-p2.z()) * p.x() + (p2.x() - p1.x()) * p.z() + (p1.x() * p2.z() - p2.x() * p1.z()) < 0)
-        return -1;
-    else
-        return 1;
+    // Определим четверть окружности
+        int q1, q2;// номер четверти для каждой точки
+        if(p1.x() >= p.x() && p1.z() >= p.z())
+            q1 = 1;
+        else
+        if(p1.x() < p.x() && p1.z() > p.z())
+            q1 = 2;
+        else
+        if(p1.x() <= p.x() && p1.z() <= p.z())
+            q1 = 3;
+        else
+            q1 = 4;
+
+        if(p2.x() >= p.x() && p2.z() >= p.z())
+            q2 = 1;
+        else
+        if(p2.x() < p.x() && p2.z() > p.z())
+            q2 = 2;
+        else
+        if(p2.x() <= p.x() && p2.z() <= p.z())
+            q2 = 3;
+        else
+            q2 = 4;
+
+        if(q1 != q2)
+        {
+            qDebug() << "Точки криволинейного отрезка лежат в разных четвертях окружности!\n";
+            return 0;
+        }
+        else
+        {
+            switch(q1)
+            {
+            case 1:
+                if(p1.z() > p2.z())
+                    return -1;
+                else
+                    return 1;
+                break;
+            case 2:
+                if(p1.z() > p2.z())
+                    return 1;
+                else
+                    return -1;
+                break;
+            case 3:
+                if(p1.z() > p2.z())
+                    return 1;
+                else
+                    return -1;
+                break;
+            case 4:
+                if(p1.z() > p2.z())
+                    return -1;
+                else
+                    return 1;
+                break;
+            }
+        }
+    //if( (p1.z()-p2.z()) * p.x() + (p2.x() - p1.x()) * p.z() + (p1.x() * p2.z() - p2.x() * p1.z()) < 0)
+    //    return -1;
+    //else
+    //    return 1;
 }
 
 int placeOfPointYZ(QDPoint &p1, QDPoint &p2, QDPoint &p)
 {
-    if( (p1.y()-p2.y()) * p.z() + (p2.z() - p1.z()) * p.y() + (p1.z() * p2.y() - p2.z() * p1.y()) < 0)
-        return -1;
-    else
-        return 1;
+    // Определим четверть окружности
+        int q1, q2;// номер четверти для каждой точки
+        if(p1.y() >= p.y() && p1.z() >= p.z())
+            q1 = 1;
+        else
+        if(p1.y() < p.y() && p1.z() > p.z())
+            q1 = 2;
+        else
+        if(p1.y() <= p.y() && p1.z() <= p.z())
+            q1 = 3;
+        else
+            q1 = 4;
+
+        if(p2.y() >= p.y() && p2.z() >= p.z())
+            q2 = 1;
+        else
+        if(p2.y() < p.y() && p2.z() > p.z())
+            q2 = 2;
+        else
+        if(p2.y() <= p.y() && p2.z() <= p.z())
+            q2 = 3;
+        else
+            q2 = 4;
+
+        if(q1 != q2)
+        {
+            qDebug() << "Точки криволинейного отрезка лежат в разных четвертях окружности!\n";
+            return 0;
+        }
+        else
+        {
+            switch(q1)
+            {
+            case 1:
+                if(p1.z() > p2.z())
+                    return -1;
+                else
+                    return 1;
+                break;
+            case 2:
+                if(p1.z() > p2.z())
+                    return 1;
+                else
+                    return -1;
+                break;
+            case 3:
+                if(p1.z() > p2.z())
+                    return 1;
+                else
+                    return -1;
+                break;
+            case 4:
+                if(p1.z() > p2.z())
+                    return -1;
+                else
+                    return 1;
+                break;
+            }
+        }
+    //if( (p1.y()-p2.y()) * p.z() + (p2.z() - p1.z()) * p.y() + (p1.z() * p2.y() - p2.z() * p1.y()) < 0)
+    //    return -1;
+    //else
+    //    return 1;
 }
 
 bool checkPlaneX(QDPoint &p1, QDPoint &p2)
@@ -158,5 +336,6 @@ bool checkPlaneZ(QDPoint &p1, QDPoint &p2)
     else
         return false;
 }
+
 #endif // GEOMETRY
 
