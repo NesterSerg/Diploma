@@ -44,8 +44,8 @@ private:
      QVector< QVector< QVector<QDPoint> > > FNet;// массив дробленной сетки (Fragmented net)
      void allocation();// выделение памяти
      int getGlobalId(int i, int j, int k);// возвращает глобальный индекс узла
-
      void curvilinearAccounting();// учёт криволинейнх областей
+
      // Другие методы
           void loadInfoFromFile(QString& filename);
 public:
@@ -53,7 +53,6 @@ public:
      int sizeX();
      int sizeY();
      int sizeZ();
-
 
 };
 

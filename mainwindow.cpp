@@ -65,6 +65,11 @@ void MainWindow::selectDirectory()
 
 void MainWindow::on_pushButton_clicked()
 {
-    Net net;
     net.createNet(directory);
+    ui->GLWidget->setNet(&net);
+    ui->GLWidget->flag = 1;
+    ui->GLWidget->setFocus();
+    ui->GLWidget->update();
+
+
 }
