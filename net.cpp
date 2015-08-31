@@ -522,45 +522,59 @@ void Net::allocation()
 
 void Net::calcPointOnSegments()
 {
+    int m;
 /*
 Сначала высчитываем координаты точек на отрезках между опорными элементами,
 которые не образуют кривол. часть. Затем, зная координаты концов отрезка, расставляем оставшиеся.
 */
   // Обрабатываем отрезки между опорными по Ox
     for(int k = 0; k < Nwz; k++)
-    for(int j = 0; j < Nwy; j++)
-    for(int i = 0; i < Nwx - 1; i++)
     {
-        if(!isRPointsOnCL(IndexOfRefPoints[i][j][k], IndexOfRefPoints[i+1][j][k], 1))// если опорные точки не лежат на кривол. участке
+        for(int j = 0; j < Nwy; j++)
         {
-           // первая и последняя точка в отрезке
-           Index3 _iBegin = IndexOfRefPoints[i][j][k];
-           Index3 _iEnd = IndexOfRefPoints[i+1][j][k];
-           // вычисляем значение начального шага
-           double _hx, _hy, _hz;
-           _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-           _hx *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+            for(int i = 0; i < Nwx - 1; i++)
+            {
+                if(!isRPointsOnCL(IndexOfRefPoints[i][j][k], IndexOfRefPoints[i+1][j][k], 1))// если опорные точки не лежат на кривол. участке
+                {
+                   // первая и последняя точка в отрезке
+                   Index3 _iBegin = IndexOfRefPoints[i][j][k];
+                   Index3 _iEnd = IndexOfRefPoints[i+1][j][k];
+                   // вычисляем значение начального шага
+                   double _hx, _hy, _hz;
 
-           _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-           _hy *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+                   _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                   _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                   _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
 
-           _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-           _hz *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+                   if(fabs(XCoD[i] - 1) > 1e-10)
+                   {
+                   _hx *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+                   _hy *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+                   _hz *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+                   }
+                   else
+                   {
+                       _hx /= XSegments[i];
+                       _hy /= XSegments[i];
+                       _hz /= XSegments[i];
+                   }
 
-           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
-           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
-           FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
+                   FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
+                   FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
+                   FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
 
-           for(int t = 1; t < XSegments[i] - 1; t++)
-           {
-               _hx *= XCoD[i];
-               _hy *= XCoD[i];
-               _hz *= XCoD[i];
+                   for(int t = 1; t < XSegments[i] - 1; t++)
+                   {
+                       _hx *= XCoD[i];
+                       _hy *= XCoD[i];
+                       _hz *= XCoD[i];
 
-               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
-               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].y() + _hy);
-               FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].z() + _hz);
-           }
+                       FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
+                       FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].y() + _hy);
+                       FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].z() + _hz);
+                   }
+                }
+            }
         }
     }
 
@@ -577,13 +591,22 @@ void Net::calcPointOnSegments()
              // вычисляем значение начального шага
              double _hx, _hy, _hz;
              _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-             _hx *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
-
              _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-             _hy *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
-
              _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-             _hz *= (1 - ZCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
+
+             if(fabs(YCoD[j] - 1) > 1e-10)
+             {
+             _hx *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
+             _hy *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
+             _hz *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
+             }
+             else
+             {
+                 _hx /= YSegments[j];
+                 _hy /= YSegments[j];
+                 _hz /= YSegments[j];
+             }
+
 
              FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
              FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
@@ -614,14 +637,23 @@ void Net::calcPointOnSegments()
                Index3 _iEnd = IndexOfRefPoints[i][j][k+1];
                // вычисляем значение начального шага
                double _hx, _hy, _hz;
-               _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-               _hx *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
 
-               _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-               _hy *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
-
+               _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);              
+               _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);              
                _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+
+               if(fabs(ZCoD[k] - 1) > 1e-10)
+               {
+               _hx *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+               _hy *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
                _hz *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+               }
+               else
+               {
+                   _hx /= ZSegments[k];
+                   _hy /= ZSegments[k];
+                   _hz /= ZSegments[k];
+               }
 
                FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
                FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
@@ -639,116 +671,318 @@ void Net::calcPointOnSegments()
                }
             }
         }
+        //на НЕОПОРНЫХ Z уровнях заполняем X, Y, Z координаты в тех местах, что и при опорном выделении(3 цикла выше)
+
+        //Заполняем по X
+        for(int k = 0, _k = 0; k < Nwz - 1; k++)
+        {
+            int _i = 0;
+            for(int i = 0; i < Nwx - 1; i++)
+            {
+                _i += XSegments[i];
+                for(int j = 0; j < Nwy; j++)
+                {
+                    Index3 _iBD, _iED, _iBU, _iEU;// B - Begin, E - End, D - Down, U - Up
+                    _iBD.i = 0;
+                    _iBD.j = 0;
+                    for(m = 0; m < i; m++)
+                        _iBD.i += XSegments[m];
+                    _iBU.i = _iBD.i;
+                    _iED.i = _iBD.i + XSegments[m];
+                    _iEU.i = _iED.i;
+                    for(m = 0; m < j; m++)
+                         _iBD.j += YSegments[m];
+                    _iBU.j = _iED.j = _iEU.j = _iBD.j;
+                    if(k == 0)
+                    {
+                        _iBD.k = _iED.k = 0;
+                        _iBU.k = _iEU.k = ZSegments[k];
+                    }
+                    else
+                    {
+                        _iBD.k = _iED.k = _k;
+                        _iBU.k = _iEU.k = _k + ZSegments[k];
+                    }
+                    //if(!isRPointsOnCL(_iBD, _iED, 1))// если опорные точки не лежат на кривол. участке
+                    //{
+
+                        for(int t = 0; t <= XSegments[i] ; t++)//обрабатываем каждую вертикальную линию между двумя опорными отрезками по X
+                        {
+                            qDebug() << _iBD.i+t << ", " << _iBD.j << ", " << _iBD.k << "\n";
+                            double _hx, _hy, _hz;
+                            _hx = getLengthX(FNet[_iBD.i+t][_iBD.j][_iBD.k], FNet[_iBU.i+t][_iBU.j][_iBU.k]);
+                            _hy = getLengthY(FNet[_iBD.i+t][_iBD.j][_iBD.k], FNet[_iBU.i+t][_iBU.j][_iBU.k]);
+                            _hz = getLengthZ(FNet[_iBD.i+t][_iBD.j][_iBD.k], FNet[_iBU.i+t][_iBU.j][_iBU.k]);
+                            if(fabs(ZCoD[k] - 1) > 1e-10)
+                            {
+                                _hx *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+                                _hy *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+                                _hz *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+                            }
+                            else
+                            {
+                                _hx /= ZSegments[k];
+                                _hy /= ZSegments[k];
+                                _hz /= ZSegments[k];
+                            }
+
+                            FNet[_iBD.i+t][_iBD.j][_iBD.k+1].setX(FNet[_iBD.i+t][_iBD.j][_iBD.k].x() + _hx);
+                            FNet[_iBD.i+t][_iBD.j][_iBD.k+1].setY(FNet[_iBD.i+t][_iBD.j][_iBD.k].y() + _hy);
+                            FNet[_iBD.i+t][_iBD.j][_iBD.k+1].setZ(FNet[_iBD.i+t][_iBD.j][_iBD.k].z() + _hz);
+                            for(int z = 1; z < ZSegments[k] - 1; z++)
+                            {
+                                _hx *= ZCoD[k];
+                                FNet[_iBD.i+t][_iBD.j][_iBD.k+z+1].setX(FNet[_iBD.i+t][_iBD.j][_iBD.k+z].x() + _hx);
+
+                                _hy *= ZCoD[k];
+                                FNet[_iBD.i+t][_iBD.j][_iBD.k+z+1].setY(FNet[_iBD.i+t][_iBD.j][_iBD.k+z].y() + _hy);
+
+                                _hz *= ZCoD[k];
+                                FNet[_iBD.i+t][_iBD.j][_iBD.k+z+1].setZ(FNet[_iBD.i+t][_iBD.j][_iBD.k+z].z() + _hz);
+
+                            }
+
+                        //}
+                    }
+                }
+            }
+            _k += ZSegments[k];
+        }
+
+        //Заполняем по Y
+        for(int k = 0, _k = 0; k < Nwz - 1; k++)
+        {
+            int _j = 0;
+            for(int j = 0; j < Nwy - 1; j++)
+            {
+                _j += YSegments[j];
+                for(int i = 0; i < Nwx; i++)
+                {
+                    Index3 _iBD, _iED, _iBU, _iEU;// B - Begin, E - End, D - Down, U - Up
+                    _iBD.i = 0;
+                    _iBD.j = 0;
+                    for(m = 0; m < j; m++)
+                        _iBD.j += YSegments[m];
+                    _iBU.j = _iBD.j;
+                    _iED.j = _iBD.j + YSegments[m];
+                    _iEU.j = _iED.j;
+                    for(m = 0; m < i; m++)
+                         _iBD.i += XSegments[m];
+                    _iBU.i = _iED.i = _iEU.i = _iBD.i;
+                    if(k == 0)
+                    {
+                        _iBD.k = _iED.k = 0;
+                        _iBU.k = _iEU.k = ZSegments[k];
+                    }
+                    else
+                    {
+                        _iBD.k = _iED.k = _k;
+                        _iBU.k = _iEU.k = _k + ZSegments[k];
+                    }
+                    //if(!isRPointsOnCL(_iBD, _iED, 1))// если опорные точки не лежат на кривол. участке
+                    //{
+
+                        for(int t = 0; t <= YSegments[j] ; t++)//обрабатываем каждую вертикальную линию между двумя опорными отрезками по X
+                        {
+                            qDebug() << _iBD.i << ", " << _iBD.j+t << ", " << _iBD.k << "\n";
+                            double _hx, _hy, _hz;
+                            _hx = getLengthX(FNet[_iBD.i][_iBD.j+t][_iBD.k], FNet[_iBU.i][_iBU.j+t][_iBU.k]);
+                            _hy = getLengthY(FNet[_iBD.i][_iBD.j+t][_iBD.k], FNet[_iBU.i][_iBU.j+t][_iBU.k]);
+                            _hz = getLengthZ(FNet[_iBD.i][_iBD.j+t][_iBD.k], FNet[_iBU.i][_iBU.j+t][_iBU.k]);
+                            if(fabs(ZCoD[k] - 1) > 1e-10)
+                            {
+                                _hx *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+                                _hy *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+                                _hz *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+                            }
+                            else
+                            {
+                                _hx /= ZSegments[k];
+                                _hy /= ZSegments[k];
+                                _hz /= ZSegments[k];
+                            }
+
+                            FNet[_iBD.i][_iBD.j+t][_iBD.k+1].setX(FNet[_iBD.i][_iBD.j+t][_iBD.k].x() + _hx);
+                            FNet[_iBD.i][_iBD.j+t][_iBD.k+1].setY(FNet[_iBD.i][_iBD.j+t][_iBD.k].y() + _hy);
+                            FNet[_iBD.i][_iBD.j+t][_iBD.k+1].setZ(FNet[_iBD.i][_iBD.j+t][_iBD.k].z() + _hz);
+                            for(int z = 1; z < ZSegments[k] - 1; z++)
+                            {
+                                _hx *= ZCoD[k];
+                                FNet[_iBD.i][_iBD.j+t][_iBD.k+z+1].setX(FNet[_iBD.i][_iBD.j+t][_iBD.k+z].x() + _hx);
+
+                                _hy *= ZCoD[k];
+                                FNet[_iBD.i][_iBD.j+t][_iBD.k+z+1].setY(FNet[_iBD.i][_iBD.j+t][_iBD.k+z].y() + _hy);
+
+                                _hz *= ZCoD[k];
+                                FNet[_iBD.i][_iBD.j+t][_iBD.k+z+1].setZ(FNet[_iBD.i][_iBD.j+t][_iBD.k+z].z() + _hz);
+
+                            }
+
+                        //}
+                    }
+                }
+            }
+            _k += ZSegments[k];
+        }
+
+
+
+
 
         // Обрабатываем точки, не лежащие на отрезках, образованные опорными точками
         // Координаты по X
         for(int k = 0; k < Nz; k++)
-        for(int j = 0; j < Ny; j++)
         {
             int _iSumm = 0;
             for(int i = 0; i < Nwx - 1; i++)
             {
 
-                // первая и последняя точка в отрезке
-                Index3 _iBegin, _iEnd;
-                if(i == 0)
+                for(int j = 0; j < Ny; j++)
                 {
-                    _iBegin.setIndex(0, j, k);
-                    _iEnd.setIndex(XSegments[i], j, k);
-                    _iSumm += XSegments[i];
-                }
-                else
-                {
-                    _iBegin.setIndex(_iSumm, j, k);
-                    _iSumm += XSegments[i];
-                    _iEnd.setIndex(_iSumm, j, k);
-                }
-                double _hx;
-                _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-                _hx *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
 
-                FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
+                    // первая и последняя точка в отрезке
+                    Index3 _iBegin, _iEnd;
+                    if(i == 0)
+                    {
+                        _iBegin.setIndex(0, j, k);
+                        _iEnd.setIndex(XSegments[i], j, k);
+                    }
+                    else
+                    {
+                        _iBegin.setIndex(_iSumm, j, k);
+                        _iEnd.setIndex(_iSumm + XSegments[i], j, k);
+                    }
+                    if(!isRPointsOnCL(_iBegin, _iEnd, 1))// если опорные точки не лежат на кривол. участке
+                    {
+                        double _hx, _hz;
+                        _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                        //_hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                        if(fabs(XCoD[i] - 1) > 1e-10)
+                        {
+                            _hx *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+                            //_hz *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
+                        }
+                        else
+                        {
+                            _hx /= XSegments[i];
+                            //_hz /= XSegments[i];
+                        }
 
-                for(int t = 1; t < XSegments[i] - 1; t++)
-                {
-                    _hx *= XCoD[i];
-                    FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].x() + _hx);//тут иправил .x() не было
+                        FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
+                        //FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
+
+                        for(int t = 1; t < XSegments[i] - 1; t++)
+                        {
+                            _hx *= XCoD[i];
+                            FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].x() + _hx);
+
+                            //_hz *= XCoD[i];
+                            //FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].z() + _hz);
+                        }
+                    }
+
                 }
-
+                _iSumm += XSegments[i];
             }
         }
         // Координаты по Y
         for(int k = 0; k < Nz; k++)
-        for(int i = 0; i < Nx; i++)
         {
             int _jSumm = 0;
             for(int j = 0; j < Nwy - 1; j++)
             {
 
-                // первая и последняя точка в отрезке
-                Index3 _iBegin, _iEnd;
-                if(j == 0)
+                for(int i = 0; i < Nx; i++)
                 {
-                    _iBegin.setIndex(i, 0, k);
-                    _iEnd.setIndex(i, YSegments[j], k);
-                    _jSumm += YSegments[j];
-                }
-                else
-                {
-                    _iBegin.setIndex(i, _jSumm, k);
-                    _jSumm += YSegments[j];
-                    _iEnd.setIndex(i, _jSumm, k);
-                }
-                double _hy;
-                _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-                _hy *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
 
-                FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);//тут иправил .x() не было
+                    // первая и последняя точка в отрезке
+                    Index3 _iBegin, _iEnd;
+                    if(j == 0)
+                    {
+                        _iBegin.setIndex(i, 0, k);
+                        _iEnd.setIndex(i, YSegments[j], k);
+                    }
+                    else
+                    {
+                        _iBegin.setIndex(i, _jSumm, k);
+                        _iEnd.setIndex(i, _jSumm + YSegments[j], k);
+                    }
+                    if(!isRPointsOnCL(_iBegin, _iEnd, -1))// если опорные точки не лежат на кривол. участке
+                    {
+                        double _hy, _hz;
+                        _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                        _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                        if(fabs(YCoD[j] - 1) > 1e-10)
+                        {
+                            _hy *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
+                            _hz *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
+                        }
+                        else
+                        {
+                            _hy /= YSegments[j];
+                            _hz /= YSegments[j];
+                        }
 
-                for(int t = 1; t < YSegments[j] - 1; t++)
-                {
-                    _hy *= YCoD[j];
-                    FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].y() + _hy);//тут иправил .x() не было
+                        FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
+                        FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
+
+                        for(int t = 1; t < YSegments[j] - 1; t++)
+                        {
+                            _hy *= YCoD[j];
+                            FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].y() + _hy);
+
+                            _hz *= YCoD[j];
+                            FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].z() + _hz);
+                        }
+                    }
                 }
-
+                _jSumm += YSegments[j];
             }
         }
-        // Координаты по Z
-        for(int i = 0; i < Nx; i++)
-        for(int j = 0; j < Ny; j++)
-        {
-            int _kSumm = 0;
-            for(int k = 0; k < Nwz - 1; k++)
-            {
+//        // Координаты по Z
+//        for(int j = 0; j < Ny; j++)
+//        {
+//            int _kSumm = 0;
+//            for(int k = 0; k < Nwz - 1; k++)
+//            {
 
-                // первая и последняя точка в отрезке
-                Index3 _iBegin, _iEnd;
-                if(k == 0)
-                {
-                    _iBegin.setIndex(i, j, 0);
-                    _iEnd.setIndex(i, j, ZSegments[k]);
-                    _kSumm += ZSegments[k];
-                }
-                else
-                {
-                    _iBegin.setIndex(i, j, _kSumm);
-                    _kSumm += ZSegments[k];
-                    _iEnd.setIndex(i, j, _kSumm);
-                }
-                double _hz;
-                _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-                _hz *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+//                for(int i = 0; i < Nx; i++)
+//                {
 
-                FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);//тут иправил .x() не было
+//                    // первая и последняя точка в отрезке
+//                    Index3 _iBegin, _iEnd;
+//                    if(k == 0)
+//                    {
+//                        _iBegin.setIndex(i, j, 0);
+//                        _iEnd.setIndex(i, j, ZSegments[k]);
+//                    }
+//                    else
+//                    {
+//                        _iBegin.setIndex(i, j, _kSumm);
+//                        _iEnd.setIndex(i, j, _kSumm + ZSegments[k]);
+//                    }
+//                    if(!isRPointsOnCL(_iBegin, _iEnd, -10))// если опорные точки не лежат на кривол. участке
+//                    {
+//                        double _hz;
+//                        _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+//                        if(fabs(ZCoD[k] - 1) > 1e-10)
+//                            _hz *= (1 - ZCoD[k]) / (1 - pow(ZCoD[k], ZSegments[k]));
+//                        else
+//                            _hz /= ZSegments[k];
 
-                for(int t = 1; t < ZSegments[k] - 1; t++)
-                {
-                    _hz *= ZCoD[k];
-                    FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t].z() + _hz);//тут иправил .x() не было
-                }
+//                        FNet[_iBegin.i][_iBegin.j][_iBegin.k+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);//тут иправил .x() не было
 
-            }
-        }
+//                        for(int t = 1; t < ZSegments[k] - 1; t++)
+//                        {
+//                            _hz *= ZCoD[k];
+//                            FNet[_iBegin.i][_iBegin.j][_iBegin.k+t+1].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k+t].z() + _hz);//тут иправил .x() не было
+//                        }
+//                    }
+//                }
+//                _kSumm += ZSegments[k];
+//            }
+//        }
+
 
 }
 
@@ -821,7 +1055,30 @@ void Net::createNet(QString& dir)
     allocation();// выделяем память под элементы, подсчитываем индексы опорных точек в сетке
     curvilinearAccounting();// генерируем точки на кривол. участках
     calcPointOnSegments();// генерируем точки на отрезках между опорными точками (не кривол.)
+    createFile();//записываем сетку в файл
+}
 
+void Net::createFile()
+{
+    QString filename = "C:\\Users\\Stepdan\\Desktop\\MyNet.txt";
+    QFile file(filename);
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QTextStream read(&file);
+        for(int k = 0; k < Nz; k++)
+        {
+            read << k+1 << " Z level\n";
+            for(int j = 0; j < Ny; j++)
+            {
+                for(int i = 0; i < Nx; i++)
+                {
+                    read << "(" << FNet[i][j][k].x() << ", " << FNet[i][j][k].y() << ", " << FNet[i][j][k].z() << ") ";
+                }
+                read << "\n";
+            }
+            read << "\n";
+        }
+    }
 }
 
 void Net::loadInfoFromFile(QString& filename)

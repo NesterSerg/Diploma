@@ -18,11 +18,7 @@
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="MainLayout">
       <item>
-       <layout class="QVBoxLayout" name="OpenglLayout">
-        <item>
-         <widget class="MyGLWidget" name="GLWidget" native="true"/>
-        </item>
-       </layout>
+       <layout class="QVBoxLayout" name="OpenglLayout"/>
       </item>
       <item>
        <layout class="QVBoxLayout" name="MenuLayout">
@@ -65,14 +61,6 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>MyGLWidget</class>
-   <extends>QWidget</extends>
-   <header>myglwidget.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

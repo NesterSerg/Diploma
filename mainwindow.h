@@ -29,6 +29,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
+    Net net;
     void create_menu();
     QString directory;
     void loadPath();

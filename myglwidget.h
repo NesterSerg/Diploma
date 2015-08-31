@@ -1,4 +1,4 @@
-#ifndef MYGLWIDGET_H
+/*#ifndef MYGLWIDGET_H
 #define MYGLWIDGET_H
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
@@ -57,3 +57,4 @@ private:
 };
 
 #endif // MYGLWIDGET_H
+*/
