@@ -1,4 +1,4 @@
-#include "MyGLWidget.h"
+/*#include "MyGLWidget.h"
 
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
@@ -47,7 +47,7 @@ void MyGLWidget::drawNet()
             f->glVertex3f(cof * net->getFNet(i, j, k).x(), cof * net->getFNet(i, j, k).y() + 1,
                           cof * net->getFNet(i, j, k).z());
         f->glEnd();
-    }*/
+    }
 }
 
 void MyGLWidget::setNet(Net *n)
@@ -223,3 +223,4 @@ void MyGLWidget::defaultScene()
 {
    xRot=-90; yRot=0; zRot=0; zTra=0; nSca=1;
 }
+*/

@@ -16,6 +16,7 @@ public:
     ~Net();
 
     void createNet(QString& dir);
+    void createFile();
 private:
 // Опорные точки
      int Nwx, Nwy, Nwz;// количество опорных точек по каждой координате
