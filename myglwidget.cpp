@@ -24,7 +24,7 @@ void MyGLWidget::drawNet()
             double x = radius * cos(angle * pi / 180);
             double y = radius * sin(angle * pi / 180);
             // Смещаем окрущность к её центру [xCentre; yCentre].
-            glVertex3d(cof * (x + xCentre), cof * (y + yCentre), cof * (zCentre));
+            glVertex3d(cof * (x + xCentre - center_scene.x()), cof * (y + yCentre - center_scene.y()), cof * (zCentre - center_scene.z()));
         }
     glEnd();
 
@@ -37,7 +37,7 @@ void MyGLWidget::drawNet()
             double y = radius * cos(angle * pi / 180);
             double z = radius * sin(angle * pi / 180);
             // Смещаем окрущность к её центру [xCentre; yCentre].
-            glVertex3d(cof * (xCentre), cof * (y + yCentre), cof * (z+zCentre));
+            glVertex3d(cof * (xCentre - center_scene.x()), cof * (y + yCentre - center_scene.y()), cof * (z+zCentre - center_scene.z()));
         }
     glEnd();
 
@@ -61,8 +61,8 @@ void MyGLWidget::drawNet()
         for(int i = x1; i < x2; i++)
         {
             glBegin(GL_LINES);
-                glVertex3f(cof*net->getFNet(i, j, k).x(), cof*net->getFNet(i, j, k).y(), cof*net->getFNet(i, j, k).z());
-                glVertex3f(cof*net->getFNet(i+1, j, k).x(), cof*net->getFNet(i+1, j, k).y(), cof*net->getFNet(i+1, j, k).z());
+                glVertex3f(cof*net->getFNet(i, j, k).x() - cof*center_scene.x(), cof*net->getFNet(i, j, k).y() - cof*center_scene.y(), cof*net->getFNet(i, j, k).z() - cof*center_scene.z());
+                glVertex3f(cof*net->getFNet(i+1, j, k).x() - cof*center_scene.x(), cof*net->getFNet(i+1, j, k).y() - cof*center_scene.y(), cof*net->getFNet(i+1, j, k).z() - cof*center_scene.z());
             glEnd();
         }
 
@@ -71,8 +71,8 @@ void MyGLWidget::drawNet()
         for(int j = y1; j < y2; j++)
         {
             glBegin(GL_LINES);
-                glVertex3f(cof*net->getFNet(i, j, k).x(), cof*net->getFNet(i, j, k).y(), cof*net->getFNet(i, j, k).z());
-                glVertex3f(cof*net->getFNet(i, j+1, k).x(), cof*net->getFNet(i, j+1, k).y(), cof*net->getFNet(i, j+1, k).z());
+                glVertex3f(cof*net->getFNet(i, j, k).x() - cof*center_scene.x(), cof*net->getFNet(i, j, k).y() - cof*center_scene.y(), cof*net->getFNet(i, j, k).z() - cof*center_scene.z());
+                glVertex3f(cof*net->getFNet(i, j+1, k).x() - cof*center_scene.x(), cof*net->getFNet(i, j+1, k).y() - cof*center_scene.y(), cof*net->getFNet(i, j+1, k).z() - cof*center_scene.z());
             glEnd();
         }
 
@@ -81,8 +81,8 @@ void MyGLWidget::drawNet()
         for(int k = z1; k < z2; k++)
         {
             glBegin(GL_LINES);
-                glVertex3f(cof*net->getFNet(i, j, k).x(), cof*net->getFNet(i, j, k).y(), cof*net->getFNet(i, j, k).z());
-                glVertex3f(cof*net->getFNet(i, j, k+1).x(), cof*net->getFNet(i, j, k+1).y(), cof*net->getFNet(i, j, k+1).z());
+                glVertex3f(cof*net->getFNet(i, j, k).x() - cof*center_scene.x(), cof*net->getFNet(i, j, k).y() - cof*center_scene.y(), cof*net->getFNet(i, j, k).z() - cof*center_scene.z());
+                glVertex3f(cof*net->getFNet(i, j, k+1).x() - cof*center_scene.x(), cof*net->getFNet(i, j, k+1).y() - cof*center_scene.y(), cof*net->getFNet(i, j, k+1).z() - cof*center_scene.z());
             glEnd();
         }
     }
@@ -162,45 +162,45 @@ void MyGLWidget::drawBrightW()
         for(int i = x1; i < x2; i++)
         {
             glBegin(GL_QUADS);
-                glVertex3f(cof*net->getFNet(i, j, k).x()+0.005, cof*net->getFNet(i, j, k).y()+0.005, cof*net->getFNet(i, j, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j, k).x()-0.005, cof*net->getFNet(i+1, j, k).y()+0.005, cof*net->getFNet(i+1, j, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-0.005, cof*net->getFNet(i+1, j+1, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i, j+1, k).x()+0.005, cof*net->getFNet(i, j+1, k).y()-0.005, cof*net->getFNet(i, j+1, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i, j, k).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j, k).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i, j, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j, k).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i+1, j, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i+1, j+1, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j+1, k).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i, j+1, k).z()-cof*center_scene.z()+0.005);
             glEnd();
 
             glBegin(GL_QUADS);
-                glVertex3f(cof*net->getFNet(i, j, k+1).x()+0.005, cof*net->getFNet(i, j, k+1).y()+0.005, cof*net->getFNet(i, j, k+1).z()-0.005);
-                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-0.005, cof*net->getFNet(i+1, j, k+1).y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-0.005);
-                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-0.005);
-                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j, k+1).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j, k+1).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i, j, k+1).z()-cof*center_scene.z()-0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j, k+1).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-cof*center_scene.z()-0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-cof*center_scene.z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-cof*center_scene.z()-0.005);
             glEnd();
 
             glBegin(GL_QUADS);
-                glVertex3f(cof*net->getFNet(i, j, k).x()+0.005, cof*net->getFNet(i, j, k).y()+0.005, cof*net->getFNet(i, j, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j, k).x()-0.005, cof*net->getFNet(i+1, j, k).y()+0.005, cof*net->getFNet(i+1, j, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-0.005, cof*net->getFNet(i+1, j, k+1).y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-0.005);
-                glVertex3f(cof*net->getFNet(i, j, k+1).x()+0.005, cof*net->getFNet(i, j, k+1).y()+0.005, cof*net->getFNet(i, j, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j, k).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j, k).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i, j, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j, k).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i+1, j, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j, k+1).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-cof*center_scene.z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j, k+1).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j, k+1).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i, j, k+1).z()-cof*center_scene.z()-0.005);
             glEnd();
 
             glBegin(GL_QUADS);
-                glVertex3f(cof*net->getFNet(i, j+1, k).x()+0.005, cof*net->getFNet(i, j+1, k).y()-0.005, cof*net->getFNet(i, j+1, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-0.005, cof*net->getFNet(i+1, j+1, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-0.005);
-                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j+1, k).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i, j+1, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i+1, j+1, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-cof*center_scene.z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-cof*center_scene.z()-0.005);
             glEnd();
 
             glBegin(GL_QUADS);
-                glVertex3f(cof*net->getFNet(i, j, k).x()+0.005, cof*net->getFNet(i, j, k).y()+0.005, cof*net->getFNet(i, j, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i, j+1, k).x()+0.005, cof*net->getFNet(i, j+1, k).y()-0.005, cof*net->getFNet(i, j+1, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-0.005);
-                glVertex3f(cof*net->getFNet(i, j, k+1).x()+0.005, cof*net->getFNet(i, j, k+1).y()+0.005, cof*net->getFNet(i, j, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j, k).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j, k).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i, j, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j+1, k).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i, j+1, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-cof*center_scene.z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j, k+1).x()-cof*center_scene.x()+0.005, cof*net->getFNet(i, j, k+1).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i, j, k+1).z()-cof*center_scene.z()-0.005);
             glEnd();
 
             glBegin(GL_QUADS);
-                glVertex3f(cof*net->getFNet(i+1, j, k).x()-0.005, cof*net->getFNet(i+1, j, k).y()+0.005, cof*net->getFNet(i+1, j, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-0.005, cof*net->getFNet(i+1, j+1, k).z()+0.005);
-                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-0.005);
-                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-0.005, cof*net->getFNet(i+1, j, k+1).y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j, k).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i+1, j, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i+1, j+1, k).z()-cof*center_scene.z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-cof*center_scene.y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-cof*center_scene.z()-0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-cof*center_scene.x()-0.005, cof*net->getFNet(i+1, j, k+1).y()-cof*center_scene.y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-cof*center_scene.z()-0.005);
             glEnd();
         }
     }
@@ -210,6 +210,7 @@ void MyGLWidget::setNet(Net *n)
 {
     net = n;
     flag = 1;
+    center_scene = net->getCentreMass();
 }
 
 void MyGLWidget::initializeGL()
@@ -266,7 +267,7 @@ void MyGLWidget::paintGL()
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glScalef(nSca, nSca, nSca);
-    glTranslatef(xTra, zTra, 0.0f);
+    glTranslatef(cof*center_scene.x() + xTra,cof*center_scene.y() + zTra, cof*center_scene.z());
     glRotatef(xRot, 1.0f, 0.0f, 0.0f);
     glRotatef(yRot, 0.0f, 1.0f, 0.0f);
     glRotatef(zRot, 0.0f, 0.0f, 1.0f);
