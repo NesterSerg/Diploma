@@ -52,11 +52,13 @@ private:
 
      // Другие методы
 
-          void loadInfoFromFile(QString& filename);
+     void loadInfoFromFile(QString& filename);
+
 public:
      QDPoint getFNet(int i, int j, int k);// доступ к массиву FNet
      QDPoint getRefPoint(int i, int j, int k);// доступ к массиву RefPoints
      Index3 getIndexOfRefPoint(int i, int j, int k);// возврат индекса в глоб. сетке опорного узла
+     QDPoint getCentreMass();// возвращает центр сетки
      int sizeX();
      int sizeY();
      int sizeZ();

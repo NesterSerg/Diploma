@@ -1303,5 +1303,32 @@ void Net::loadInfoFromFile(QString& filename)
     }
 }
 
+QDPoint Net::getCentreMass()
+{
+    QDPoint max(DBL_MIN, DBL_MIN, DBL_MIN), min(DBL_MAX, DBL_MAX, DBL_MAX);
+    for(int k = 0; k < Nwz; k++)
+    for(int j = 0; j < Nwy; j++)
+    for(int i = 0; i < Nwx; i++)
+    {
+        if(RefPoints[i][j][k].x() > max.x())
+            max.setX(RefPoints[i][j][k].x());
+        if(RefPoints[i][j][k].y() > max.y())
+            max.setY(RefPoints[i][j][k].y());
+        if(RefPoints[i][j][k].z() > max.z())
+            max.setZ(RefPoints[i][j][k].z());
+
+        if(RefPoints[i][j][k].x() < min.x())
+            min.setX(RefPoints[i][j][k].x());
+        if(RefPoints[i][j][k].y() < min.y())
+            min.setY(RefPoints[i][j][k].y());
+        if(RefPoints[i][j][k].z() < min.z())
+            min.setZ(RefPoints[i][j][k].z());
+    }
+
+    QDPoint result((max.x()-min.x())/2, (max.y()-min.y())/2, (max.z()-min.z())/2);
+
+    return result;
+}
+
 
 

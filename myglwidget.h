@@ -4,6 +4,7 @@
 #include <QGLWidget>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include "lib.h"
 #include "Net.h"
 class MyGLWidget :  public QGLWidget
 {
@@ -17,6 +18,7 @@ public:
     void setNet(Net *n);
 
     bool color;
+    QDPoint center_scene;
 protected :
     void initializeGL();
     void resizeGL(int nWidth, int nHeight);
