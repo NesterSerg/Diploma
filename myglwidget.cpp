@@ -1,101 +1,282 @@
-/*#include "MyGLWidget.h"
+#include "MyGLWidget.h"
 
 
-MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent)
+MyGLWidget::MyGLWidget(QWidget *parent) :  QGLWidget(parent)
 {
     xRot=-90; yRot=0; zRot=0; zTra=0; nSca=1; xTra = 0;
+    flag = 0;
+    color = false;
+    cof = 0.3;
 }
 
 void MyGLWidget::drawNet()
 {
-   /* double cof = 0.1;
-    f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_1_Compatibility>();//
-    for(int i = 0; i < net->sizeX(); i++)
-    for(int j = 0; j < net->sizeY(); j++)
-    for(int k = 0; k < net->sizeZ() - 1; k++)
+
+    double pi = 3.141592, _x, _y, _z;
+
+    double xCentre = 7, yCentre = 4, zCentre = 0, radius = 2;
+    // Прорисовка окружности непосредственно.
+    glColor3f(1, 0, 0);
+    glBegin(GL_LINE_LOOP);
+        for (int angle = 0; angle <= 360; angle += 10)
+        {
+            // Координаты x, y повёрнутые на заданный угол относительно начала координат.
+            double x = radius * cos(angle * pi / 180);
+            double y = radius * sin(angle * pi / 180);
+            // Смещаем окрущность к её центру [xCentre; yCentre].
+            glVertex3d(cof * (x + xCentre), cof * (y + yCentre), cof * (zCentre));
+        }
+    glEnd();
+
+
+    xCentre = 0; yCentre = 2; zCentre = 7.5; radius = 4.0311288;
+    glBegin(GL_LINE_LOOP);
+        for (int angle = 0; angle <= 360; angle += 10)
+        {
+            // Координаты x, y повёрнутые на заданный угол относительно начала координат.
+            double y = radius * cos(angle * pi / 180);
+            double z = radius * sin(angle * pi / 180);
+            // Смещаем окрущность к её центру [xCentre; yCentre].
+            glVertex3d(cof * (xCentre), cof * (y + yCentre), cof * (z+zCentre));
+        }
+    glEnd();
+
+
+    //рисуем по подобластям
+
+
+    glColor3f(0, 0, 0);
+    for(int w = 0; w < net->sizeW(); w++)
     {
-        f->glColor3f(0, 0, 0);
-        f->glBegin(GL_LINES);
-            f->glVertex3f(cof * net->getFNet(i, j, k).x(), cof * net->getFNet(i, j, k).y(),
-                          cof * net->getFNet(i, j, k).z());
-            f->glVertex3f(cof * net->getFNet(i, j, k).x(), cof * net->getFNet(i, j, k).y(),
-                          cof * net->getFNet(i, j, k).z() + 1);
-        f->glEnd();
+        int x1, x2, y1, y2, z1, z2;
+        x1 = net->getIndexOfRefPoint(net->getSubareas(w, 1), net->getSubareas(w, 3), net->getSubareas(w, 5)).i;
+        x2 = net->getIndexOfRefPoint(net->getSubareas(w, 2), net->getSubareas(w, 3), net->getSubareas(w, 5)).i;
+        y1 = net->getIndexOfRefPoint(net->getSubareas(w, 1), net->getSubareas(w, 3), net->getSubareas(w, 5)).j;
+        y2 = net->getIndexOfRefPoint(net->getSubareas(w, 2), net->getSubareas(w, 4), net->getSubareas(w, 5)).j;
+        z1 = net->getIndexOfRefPoint(net->getSubareas(w, 1), net->getSubareas(w, 3), net->getSubareas(w, 5)).k;
+        z2 = net->getIndexOfRefPoint(net->getSubareas(w, 2), net->getSubareas(w, 3), net->getSubareas(w, 6)).k;
+
+        for(int k = z1; k <= z2; k++)
+        for(int j = y1; j <= y2; j++)
+        for(int i = x1; i < x2; i++)
+        {
+            glBegin(GL_LINES);
+                glVertex3f(cof*net->getFNet(i, j, k).x(), cof*net->getFNet(i, j, k).y(), cof*net->getFNet(i, j, k).z());
+                glVertex3f(cof*net->getFNet(i+1, j, k).x(), cof*net->getFNet(i+1, j, k).y(), cof*net->getFNet(i+1, j, k).z());
+            glEnd();
+        }
+
+        for(int k = z1; k <= z2; k++)
+        for(int i = x1; i <= x2; i++)
+        for(int j = y1; j < y2; j++)
+        {
+            glBegin(GL_LINES);
+                glVertex3f(cof*net->getFNet(i, j, k).x(), cof*net->getFNet(i, j, k).y(), cof*net->getFNet(i, j, k).z());
+                glVertex3f(cof*net->getFNet(i, j+1, k).x(), cof*net->getFNet(i, j+1, k).y(), cof*net->getFNet(i, j+1, k).z());
+            glEnd();
+        }
+
+        for(int i = x1; i <= x2; i++)
+        for(int j = y1; j <= y2; j++)
+        for(int k = z1; k < z2; k++)
+        {
+            glBegin(GL_LINES);
+                glVertex3f(cof*net->getFNet(i, j, k).x(), cof*net->getFNet(i, j, k).y(), cof*net->getFNet(i, j, k).z());
+                glVertex3f(cof*net->getFNet(i, j, k+1).x(), cof*net->getFNet(i, j, k+1).y(), cof*net->getFNet(i, j, k+1).z());
+            glEnd();
+        }
     }
 
-    for(int k = 0; k < net->sizeZ(); k++)
-    for(int j = 0; j < net->sizeY(); j++)
-    for(int i = 0; i < net->sizeX() - 1; i++)
-    {
-        f->glColor3f(0, 0, 0);
-        f->glBegin(GL_LINES);
-            f->glVertex3f(cof * net->getFNet(i, j, k).x(), cof * net->getFNet(i, j, k).y(),
-                          cof * net->getFNet(i, j, k).z());
-            f->glVertex3f(cof * net->getFNet(i, j, k).x() + 1, cof * net->getFNet(i, j, k).y(),
-                          cof * net->getFNet(i, j, k).z());
-        f->glEnd();
-    }
+}
 
-    for(int i = 0; i < net->sizeX(); i++)
-    for(int k = 0; k < net->sizeZ(); k++)
-    for(int j = 0; j < net->sizeY() - 1; j++)
+void MyGLWidget::drawAxis()
+{
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+    glDisable(GL_COLOR_MATERIAL);
+
+    glLineWidth(2);
+    //Ободок камеры
+    glPushMatrix();
+    glLoadIdentity();
+    glColor3ub(176, 196, 222);
+    glBegin(GL_QUADS);
+        glVertex3f(2.6, 1.6, 0);
+        glVertex3f(2.6, 2.8, 0);
+        glVertex3f(3.8, 2.8, 0);
+        glVertex3f(3.8, 1.6, 0);
+    glEnd();
+    glColor3f(1, 0, 0);
+    glBegin(GL_LINE_LOOP);
+        glVertex3f(2.6, 1.6, 2.9);
+        glVertex3f(2.6, 2.8, 2.9);
+        glVertex3f(3.8, 2.8, 2.9);
+        glVertex3f(3.8, 1.6, 2.9);
+    glEnd();
+    glPopMatrix();
+    glColor3f(1, 0, 0);
+    glBegin(GL_LINES);
+        glVertex3f(0, 0, 0);//glVertex3f(2.5, 0, 2.5);
+        glVertex3f(0.4, 0, 0);//glVertex3f(2.7, 0, 2.5);
+    glEnd();
+
+    glColor3f(0, 0.5, 0);
+    glBegin(GL_LINES);
+        glVertex3f(0, 0, 0);//glVertex3f(2.5, 0, 2.5);
+        glVertex3f(0, 0.4, 0);//glVertex3f(2.5, 0.2, 2.5);
+    glEnd();
+
+    glColor3f(0, 0, 1);
+    glBegin(GL_LINES);
+        glVertex3f(0, 0, 0);//glVertex3f(2.5, 0, 2.5);
+        glVertex3f(0, 0, 0.4);//glVertex3f(2.5, 0, 2.7);
+    glEnd();
+
+   //if(light)
+   //{
+   //    glEnable(GL_LIGHTING);
+   //    glEnable(GL_LIGHT0);
+   //    glEnable(GL_COLOR_MATERIAL);
+   //}
+
+    glLineWidth(1);
+}
+
+void MyGLWidget::drawBrightW()
+{
+    for(int w = 0; w < net->sizeW(); w++)
     {
-        f->glColor3f(0, 0, 0);
-        f->glBegin(GL_LINES);
-            f->glVertex3f(cof * net->getFNet(i, j, k).x(), cof * net->getFNet(i, j, k).y(),
-                          cof * net->getFNet(i, j, k).z());
-            f->glVertex3f(cof * net->getFNet(i, j, k).x(), cof * net->getFNet(i, j, k).y() + 1,
-                          cof * net->getFNet(i, j, k).z());
-        f->glEnd();
+        int x1, x2, y1, y2, z1, z2;
+        x1 = net->getIndexOfRefPoint(net->getSubareas(w, 1), net->getSubareas(w, 3), net->getSubareas(w, 5)).i;
+        x2 = net->getIndexOfRefPoint(net->getSubareas(w, 2), net->getSubareas(w, 3), net->getSubareas(w, 5)).i;
+        y1 = net->getIndexOfRefPoint(net->getSubareas(w, 1), net->getSubareas(w, 3), net->getSubareas(w, 5)).j;
+        y2 = net->getIndexOfRefPoint(net->getSubareas(w, 2), net->getSubareas(w, 4), net->getSubareas(w, 5)).j;
+        z1 = net->getIndexOfRefPoint(net->getSubareas(w, 1), net->getSubareas(w, 3), net->getSubareas(w, 5)).k;
+        z2 = net->getIndexOfRefPoint(net->getSubareas(w, 2), net->getSubareas(w, 3), net->getSubareas(w, 6)).k;
+
+        glColor3f(net->colorsW[w][0], net->colorsW[w][1], net->colorsW[w][2]);
+
+        for(int k = z1; k < z2; k++)
+        for(int j = y1; j < y2; j++)
+        for(int i = x1; i < x2; i++)
+        {
+            glBegin(GL_QUADS);
+                glVertex3f(cof*net->getFNet(i, j, k).x()+0.005, cof*net->getFNet(i, j, k).y()+0.005, cof*net->getFNet(i, j, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k).x()-0.005, cof*net->getFNet(i+1, j, k).y()+0.005, cof*net->getFNet(i+1, j, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-0.005, cof*net->getFNet(i+1, j+1, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k).x()+0.005, cof*net->getFNet(i, j+1, k).y()-0.005, cof*net->getFNet(i, j+1, k).z()+0.005);
+            glEnd();
+
+            glBegin(GL_QUADS);
+                glVertex3f(cof*net->getFNet(i, j, k+1).x()+0.005, cof*net->getFNet(i, j, k+1).y()+0.005, cof*net->getFNet(i, j, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-0.005, cof*net->getFNet(i+1, j, k+1).y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-0.005);
+            glEnd();
+
+            glBegin(GL_QUADS);
+                glVertex3f(cof*net->getFNet(i, j, k).x()+0.005, cof*net->getFNet(i, j, k).y()+0.005, cof*net->getFNet(i, j, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k).x()-0.005, cof*net->getFNet(i+1, j, k).y()+0.005, cof*net->getFNet(i+1, j, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-0.005, cof*net->getFNet(i+1, j, k+1).y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j, k+1).x()+0.005, cof*net->getFNet(i, j, k+1).y()+0.005, cof*net->getFNet(i, j, k+1).z()-0.005);
+            glEnd();
+
+            glBegin(GL_QUADS);
+                glVertex3f(cof*net->getFNet(i, j+1, k).x()+0.005, cof*net->getFNet(i, j+1, k).y()-0.005, cof*net->getFNet(i, j+1, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-0.005, cof*net->getFNet(i+1, j+1, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-0.005);
+            glEnd();
+
+            glBegin(GL_QUADS);
+                glVertex3f(cof*net->getFNet(i, j, k).x()+0.005, cof*net->getFNet(i, j, k).y()+0.005, cof*net->getFNet(i, j, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k).x()+0.005, cof*net->getFNet(i, j+1, k).y()-0.005, cof*net->getFNet(i, j+1, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i, j+1, k+1).x()+0.005, cof*net->getFNet(i, j+1, k+1).y()-0.005, cof*net->getFNet(i, j+1, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i, j, k+1).x()+0.005, cof*net->getFNet(i, j, k+1).y()+0.005, cof*net->getFNet(i, j, k+1).z()-0.005);
+            glEnd();
+
+            glBegin(GL_QUADS);
+                glVertex3f(cof*net->getFNet(i+1, j, k).x()-0.005, cof*net->getFNet(i+1, j, k).y()+0.005, cof*net->getFNet(i+1, j, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k).x()-0.005, cof*net->getFNet(i+1, j+1, k).y()-0.005, cof*net->getFNet(i+1, j+1, k).z()+0.005);
+                glVertex3f(cof*net->getFNet(i+1, j+1, k+1).x()-0.005, cof*net->getFNet(i+1, j+1, k+1).y()-0.005, cof*net->getFNet(i+1, j+1, k+1).z()-0.005);
+                glVertex3f(cof*net->getFNet(i+1, j, k+1).x()-0.005, cof*net->getFNet(i+1, j, k+1).y()+0.005, cof*net->getFNet(i+1, j, k+1).z()-0.005);
+            glEnd();
+        }
     }
 }
 
 void MyGLWidget::setNet(Net *n)
 {
     net = n;
+    flag = 1;
 }
 
 void MyGLWidget::initializeGL()
 {
-    f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_1_Compatibility>();
-    initializeOpenGLFunctions();// типо функции опенджл, вот только не все
+
     glClearColor(248./255, 244./255, 1, 0);
     glEnable(GL_DEPTH_TEST);
-    //glShadeModel(GL_SMOOTH);//GL_SMOOTH
-    //
-    //
-    //GLfloat light0_position[] = { 0.0, 2, 0, 1.0 };
-    //glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
-    //GLfloat light0_diffuse[] = {1, 1, 1};
-    //glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
-    //
-    //GLfloat ambience[] = {1.0f, 1.0f, 1.0f, 0.0};
-    //glLightfv(GL_LIGHT0, GL_AMBIENT,  ambience);
-    //GLfloat  light0_specular[] = { 1, 1, 1, 1} ;
-    //glLightfv ( GL_LIGHT0, GL_SPECULAR, light0_specular );
-    //glEnable(GL_NORMALIZE);
+    glShadeModel(GL_SMOOTH);//GL_SMOOTH
+
+
+    GLfloat light0_position[] = { 0.0, 2, 0, 1.0 };
+    glLightfv(GL_LIGHT0, GL_POSITION, light0_position);
+    GLfloat light0_diffuse[] = {1, 1, 1};
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light0_diffuse);
+
+    GLfloat ambience[] = {1.0f, 1.0f, 1.0f, 0.0};
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  ambience);
+    GLfloat  light0_specular[] = { 1, 1, 1, 1} ;
+    glLightfv ( GL_LIGHT0, GL_SPECULAR, light0_specular );
+    glEnable(GL_NORMALIZE);
 
 
 }
 
 void MyGLWidget::resizeGL(int nWidth, int nHeight)
 {
-    f->glMatrixMode(GL_PROJECTION);
-    f->glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
     GLfloat ratio=(GLfloat)nHeight/(GLfloat)nWidth;
 
     if (nWidth>=nHeight)
-       f->glOrtho(-3.0/ratio, 3.0/ratio, -3.0, 3.0, -10.0, 10.0);
+       glOrtho(-3.0/ratio, 3.0/ratio, -3.0, 3.0, -10.0, 10.0);
     else
-       f->glOrtho(-3.0, 3.0, -3.0*ratio, 3.0*ratio, -10.0, 10.0);
+       glOrtho(-3.0, 3.0, -3.0*ratio, 3.0*ratio, -10.0, 10.0);
 
     glViewport(0, 0, (GLint)nWidth, (GLint)nHeight);
 }
 
 void MyGLWidget::paintGL()
 {
-    drawNet();
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(3.2, 2.2, 3);
+    glRotatef(xRot, 1.0f, 0.0f, 0.0f);
+    glRotatef(yRot, 0.0f, 1.0f, 0.0f);
+    glRotatef(zRot, 0.0f, 0.0f, 1.0f);
+
+    drawAxis();
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glScalef(nSca, nSca, nSca);
+    glTranslatef(xTra, zTra, 0.0f);
+    glRotatef(xRot, 1.0f, 0.0f, 0.0f);
+    glRotatef(yRot, 0.0f, 1.0f, 0.0f);
+    glRotatef(zRot, 0.0f, 0.0f, 1.0f);
+    if(flag == 1)
+    {
+        if(color)
+            drawBrightW();
+        drawNet();
+
+    }
 }
 
 
@@ -223,4 +404,4 @@ void MyGLWidget::defaultScene()
 {
    xRot=-90; yRot=0; zRot=0; zTra=0; nSca=1;
 }
-*/
+

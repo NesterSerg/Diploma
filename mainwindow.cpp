@@ -66,5 +66,17 @@ void MainWindow::selectDirectory()
 void MainWindow::on_pushButton_clicked()
 {
     net.createNet(directory);
-    //ui->GLWidget->setNet(&net);
+    ui->widget->setNet(&net);
+    ui->widget->setFocus();
+    ui->widget->update();
+}
+
+void MainWindow::on_WcheckBox_clicked()
+{
+    if(ui->widget->color)
+        ui->widget->color = false;
+    else
+        ui->widget->color = true;
+    ui->widget->setFocus();
+    ui->widget->update();
 }

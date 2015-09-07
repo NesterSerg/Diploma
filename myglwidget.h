@@ -1,29 +1,22 @@
-/*#ifndef MYGLWIDGET_H
+#ifndef MYGLWIDGET_H
 #define MYGLWIDGET_H
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
-#include <QOpenGLContext>
-#include <QOpenGLFunctions_4_1_Compatibility>
 
-//#include <QGLWidget>
-//#include <QtOpenGL>
-//#include <QtWidgets>
+#include <QGLWidget>
 #include <QMouseEvent>
 #include <QKeyEvent>
-
-
-
-#include <QUuid>
-
 #include "Net.h"
-class MyGLWidget :  public QOpenGLWidget, protected QOpenGLFunctions
+class MyGLWidget :  public QGLWidget
 {
 public:
 
     Net *net;
     MyGLWidget(QWidget *parent);
     void drawNet();
+    void drawAxis();
+    void drawBrightW();
     void setNet(Net *n);
+
+    bool color;
 protected :
     void initializeGL();
     void resizeGL(int nWidth, int nHeight);
@@ -34,15 +27,19 @@ protected :
     void wheelEvent(QWheelEvent* pe);
     void keyPressEvent(QKeyEvent* pe);
 private:
-    QOpenGLFunctions_4_1_Compatibility *f;
+
     GLfloat xRot;
     GLfloat yRot;
     GLfloat zRot;
     GLfloat xTra;
     GLfloat zTra;
     GLfloat nSca;
-
+    int flag;
     QPoint ptrMousePosition;
+
+    double cof;
+
+
 
     void scale_plus();
     void scale_minus();
@@ -57,4 +54,4 @@ private:
 };
 
 #endif // MYGLWIDGET_H
-*/
+

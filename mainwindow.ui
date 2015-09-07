@@ -18,14 +18,25 @@
     <item row="0" column="0">
      <layout class="QHBoxLayout" name="MainLayout">
       <item>
-       <layout class="QVBoxLayout" name="OpenglLayout"/>
+       <layout class="QVBoxLayout" name="OpenglLayout">
+        <item>
+         <widget class="MyGLWidget" name="widget" native="true"/>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QVBoxLayout" name="MenuLayout">
         <item>
          <widget class="QPushButton" name="pushButton">
           <property name="text">
-           <string>КНОПКА</string>
+           <string>Построение сетки</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="WcheckBox">
+          <property name="text">
+           <string>Подобласти</string>
           </property>
          </widget>
         </item>
@@ -61,6 +72,14 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MyGLWidget</class>
+   <extends>QWidget</extends>
+   <header>myglwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

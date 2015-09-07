@@ -25,6 +25,7 @@ private slots:
     void exit();
     void selectDirectory();
     void on_pushButton_clicked();
+    void on_WcheckBox_clicked();
 
 private:
     Ui::MainWindow *ui;

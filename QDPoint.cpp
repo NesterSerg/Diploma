@@ -22,6 +22,16 @@ QDPoint &QDPoint::operator =(const QDPoint &point_2)
     return *this;
 }
 
+bool QDPoint::operator ==(const QDPoint &point_2)
+{
+    if(fabs(px-point_2.x()) < CMP_EPS &&
+       fabs(py-point_2.y()) < CMP_EPS &&
+       fabs(pz-point_2.z()) < CMP_EPS )
+        return true;
+    else
+        return false;
+}
+
 QTextStream& operator <<(QTextStream &out, const QDPoint& p)
 {
     out << qSetRealNumberPrecision(10) << p.x()<< " " << qSetRealNumberPrecision(10) << p.y()<< " " << qSetRealNumberPrecision(10) << p.z();

@@ -8,6 +8,7 @@ class QDPoint
         QDPoint();
         QDPoint(double xpos, double ypos, double zpos);
         QDPoint &operator = (const QDPoint  &point_2);
+        bool operator == (const QDPoint  &point_2);
         friend QTextStream & operator << (QTextStream & out, const QDPoint &p);
         double x()const;
         double y()const;
