@@ -340,9 +340,12 @@ Z-координату находим через подобие треуголь
 
 void Net::curvilinearAccounting()
 {
-    QDPoint _buf1, _buf2, _center;// крайние точки кривол. участка + центр окружности
-    Index3 _index1, _index2;
+    QDPoint _buf1, _buf2, _center, _oldcenter(DBL_MAX, DBL_MAX, DBL_MAX);// крайние точки кривол. участка + центр окружности
+    Index3 _index1, _index2, _old1, _old2;
     int _t;
+
+
+    _old1.i=_old1.j=_old1.k=_old2.i=_old2.j=_old2.k=-1;
 
   // Выделяем память под массивы пар опорных элементов(см. инициализацию в net.h)
     int _i = 0, _j = 0, _k = 0;// счетчик пар опорных элементов, образующих кривол. участок
@@ -363,6 +366,8 @@ void Net::curvilinearAccounting()
         case 1:// если искривление по горизонтали (по оси X)
         // вычисляем индексы крайних точек в р. сетке
           // индекс по Z
+            bool xy, xz;
+            xy = false; xz = false;
             _index1.k = 0;
             for(_t = 0; _t < CLSections[m][1] - 1; _t++)
                 _index1.k += ZSegments[_t];
@@ -388,9 +393,31 @@ void Net::curvilinearAccounting()
             _center.setX(CLSections[m][4]);
             _center.setY(CLSections[m][5]);
             _center.setZ(CLSections[m][6]);
+            if(getLengthX(_oldcenter, _center) < CMP_EPS && getLengthY(_oldcenter, _center) < CMP_EPS)
+                xy = true;
+            else
+            if(getLengthX(_oldcenter, _center) < CMP_EPS && getLengthZ(_oldcenter, _center) < CMP_EPS)
+                xz = true;
+            _oldcenter = _center;
           // Вычисляем доп. точки
             calcPointOnCL(_buf1, _buf2, _center, XSegments[CLSections[m][2] - 1], XCoD[CLSections[m][2] - 1],
                     _index1, _index2, CLSections[m][0]);
+           //_old1 = _index1;
+           //_old2 = _index2;
+           //if(xy)
+           //{
+           //   for(int z = 1; _old1.k+z < _index1.k; z++)
+           //   {
+           //       _buf1 = FNet[_old1.i][_old1.j][_old1.k+z];
+           //       _buf2 = FNet[_old2.i][_old2.j][_old2.k+z];
+           //       _center.setZ(FNet)
+           //   }
+           //}
+           //else
+           //if(xz)
+           //{
+           //
+           //}
             break;
         case -1:// если искривление по вертикали (по оси Y)
             // вычисляем индексы крайних точек в р. сетке
@@ -515,6 +542,15 @@ void Net::allocation()
             IndexOfRefPoints[i][j][k].k += ZSegments[t];
         // Вносим координаты опорных точек в раздробленную сетку
         FNet[IndexOfRefPoints[i][j][k].i][IndexOfRefPoints[i][j][k].j][IndexOfRefPoints[i][j][k].k] = RefPoints[i][j][k];
+    }
+
+    //генерируем цвета подобластей
+    colorsW.resize(Nw);
+    for(int i = 0; i < Nw; i++)
+    {
+        colorsW[i].resize(3);
+        for(int j = 0; j < 3; j++)
+            colorsW[i][j] = (rand()%255)/255.;
     }
 
 
@@ -671,6 +707,7 @@ void Net::calcPointOnSegments()
                }
             }
         }
+
         //на НЕОПОРНЫХ Z уровнях заполняем X, Y, Z координаты в тех местах, что и при опорном выделении(3 цикла выше)
 
         //Заполняем по X
@@ -827,8 +864,6 @@ void Net::calcPointOnSegments()
 
 
 
-
-
         // Обрабатываем точки, не лежащие на отрезках, образованные опорными точками
         // Координаты по X
         for(int k = 0; k < Nz; k++)
@@ -854,30 +889,32 @@ void Net::calcPointOnSegments()
                     }
                     if(!isRPointsOnCL(_iBegin, _iEnd, 1))// если опорные точки не лежат на кривол. участке
                     {
-                        double _hx, _hz;
+                        double _hx, _hy, _hz;
+
                         _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
-                        //_hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                        _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
+                        _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
                         if(fabs(XCoD[i] - 1) > 1e-10)
-                        {
                             _hx *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
-                            //_hz *= (1 - XCoD[i]) / (1 - pow(XCoD[i], XSegments[i]));
-                        }
                         else
-                        {
                             _hx /= XSegments[i];
-                            //_hz /= XSegments[i];
-                        }
 
-                        FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
-                        //FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
-
+                        if(fabs(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].x() - 0. ) < CMP_EPS)
+                            FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x() + _hx);
+                        if(_hz < CMP_EPS && fabs(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].z() - 0. ) < CMP_EPS)
+                            FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z());
+                        if(_hy < CMP_EPS && fabs(FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].y() - 0. ) < CMP_EPS)
+                            FNet[_iBegin.i+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y());
                         for(int t = 1; t < XSegments[i] - 1; t++)
                         {
                             _hx *= XCoD[i];
+                            if(fabs(FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].x() - 0.) < CMP_EPS)
                             FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setX(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].x() + _hx);
 
-                            //_hz *= XCoD[i];
-                            //FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].z() + _hz);
+                            if(_hz < CMP_EPS && fabs(FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].z() - 0.) < CMP_EPS)
+                                FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setZ(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].z());
+                            if(_hy < CMP_EPS && fabs(FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].y() - 0.) < CMP_EPS)
+                                FNet[_iBegin.i+t+1][_iBegin.j][_iBegin.k].setY(FNet[_iBegin.i+t][_iBegin.j][_iBegin.k].y());
                         }
                     }
 
@@ -909,37 +946,43 @@ void Net::calcPointOnSegments()
                     }
                     if(!isRPointsOnCL(_iBegin, _iEnd, -1))// если опорные точки не лежат на кривол. участке
                     {
-                        double _hy, _hz;
+                        double _hy, _hz, _hx;
+                        _hx = getLengthX(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
                         _hy = getLengthY(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
                         _hz = getLengthZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k], FNet[_iEnd.i][_iEnd.j][_iEnd.k]);
                         if(fabs(YCoD[j] - 1) > 1e-10)
-                        {
                             _hy *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
-                            _hz *= (1 - YCoD[j]) / (1 - pow(YCoD[j], YSegments[j]));
-                        }
                         else
-                        {
                             _hy /= YSegments[j];
-                            _hz /= YSegments[j];
-                        }
 
-                        FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
-                        FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z() + _hz);
+                        if(fabs(FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].y() - 0.) < CMP_EPS)
+                            FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j][_iBegin.k].y() + _hy);
+                        if(_hz < CMP_EPS && fabs(FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].z() - 0.) < CMP_EPS)
+                            FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j][_iBegin.k].z());
+                        if(_hx < CMP_EPS && fabs(FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].x() - 0.) < CMP_EPS)
+                            FNet[_iBegin.i][_iBegin.j+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j][_iBegin.k].x());
 
                         for(int t = 1; t < YSegments[j] - 1; t++)
                         {
                             _hy *= YCoD[j];
-                            FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].y() + _hy);
+                            if(fabs(FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].y() - 0.) <  CMP_EPS)
+                                FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setY(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].y() + _hy);
 
-                            _hz *= YCoD[j];
-                            FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].z() + _hz);
+                            if(_hz < CMP_EPS && fabs(FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].z() - 0.) <  CMP_EPS)
+                                FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setZ(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].z());
+
+                            if(_hx < CMP_EPS && fabs(FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].x() - 0.) <  CMP_EPS)
+                                FNet[_iBegin.i][_iBegin.j+t+1][_iBegin.k].setX(FNet[_iBegin.i][_iBegin.j+t][_iBegin.k].x());
                         }
                     }
                 }
                 _jSumm += YSegments[j];
             }
         }
-//        // Координаты по Z
+
+
+
+        //        // Координаты по Z
 //        for(int j = 0; j < Ny; j++)
 //        {
 //            int _kSumm = 0;
@@ -1025,6 +1068,16 @@ QDPoint Net::getFNet(int i, int j, int k)
     return FNet[i][j][k];
 }
 
+QDPoint Net::getRefPoint(int i, int j, int k)
+{
+    return RefPoints[i][j][k];
+}
+
+Index3 Net::getIndexOfRefPoint(int i, int j, int k)
+{
+    return IndexOfRefPoints[i][j][k];
+}
+
 int Net::getGlobalId(int i, int j, int k)
 {
     return i + j * Nx + k * Nx * Ny;
@@ -1043,6 +1096,29 @@ int Net::sizeZ()
     return Nz;
 }
 
+int Net::sizeW()
+{
+    return Nw;
+}
+
+int Net::sizeXw()
+{
+    return Nwx;
+}
+int Net::sizeYw()
+{
+    return Nwy;
+}
+int Net::sizeZw()
+{
+    return Nwz;
+}
+
+int Net::getSubareas(int i, int j)
+{
+    return Subareas[i][j];
+}
+
 
 /*
 Остальное
@@ -1052,7 +1128,7 @@ void Net::createNet(QString& dir)
 {
     QString str = dir + "/NetInfo.txt";
     loadInfoFromFile(str);
-    allocation();// выделяем память под элементы, подсчитываем индексы опорных точек в сетке
+    allocation();// выделяем память под элементы, подсчитываем индексы опорных точек в сетке, зануляем сетку
     curvilinearAccounting();// генерируем точки на кривол. участках
     calcPointOnSegments();// генерируем точки на отрезках между опорными точками (не кривол.)
     createFile();//записываем сетку в файл
@@ -1123,18 +1199,24 @@ void Net::loadInfoFromFile(QString& filename)
         {
             in >> XSegments[i];
             in >> XCoD[i];
+            if(XCoD[i] < 0)
+                XCoD[i]  = -1./XCoD[i];
         }
         YSegments.resize(Nwy - 1); YCoD.resize(Nwy - 1);
         for(int i = 0; i < Nwy - 1; i++)
         {
             in >> YSegments[i];
             in >> YCoD[i];
+            if(YCoD[i] < 0)
+                YCoD[i]  = -1./YCoD[i];
         }
         ZSegments.resize(Nwz - 1); ZCoD.resize(Nwz - 1);
         for(int i = 0; i < Nwz - 1; i++)
         {
             in >> ZSegments[i];
             in >> ZCoD[i];
+            if(ZCoD[i] < 0)
+                ZCoD[i]  = -1./ZCoD[i];
         }
     //Считывание информации о подобластях
         in >> bufString;// "Число_подобластей"
@@ -1145,7 +1227,10 @@ void Net::loadInfoFromFile(QString& filename)
         {
             Subareas[i].resize(7);
             for(int j = 0; j < 7; j++)
+            {
                 in >> Subareas[i][j];
+                Subareas[i][j]--;
+            }
         }
 
     //Считывание информации о криволинейных участках

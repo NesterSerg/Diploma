@@ -17,11 +17,14 @@ public:
 
     void createNet(QString& dir);
     void createFile();
+    QVector< QVector<double> > colorsW;// цвета подобластей
+
 private:
 // Опорные точки
-     int Nwx, Nwy, Nwz;// количество опорных точек по каждой координате
-     int NAll;// общее число опорных точек
-     QVector< QVector< QVector<QDPoint> > > RefPoints;// опорные точки(Reference points)
+    int Nwx, Nwy, Nwz;// количество опорных точек по каждой координате
+    QVector< QVector< QVector<QDPoint> > > RefPoints;// опорные точки(Reference points)
+    int NAll;// общее число опорных точек
+
 // Информация о разбиении сетки
      QVector<int> XSegments, YSegments, ZSegments;// массивы для хранения числа отрезков между опорными точками
      QVector<double> XCoD, YCoD, ZCoD;// массивы для хранения коэффициентов разрядки (CoD ~ Coefficient of discharge)
@@ -48,12 +51,21 @@ private:
      void curvilinearAccounting();// учёт криволинейнх областей
 
      // Другие методы
+
           void loadInfoFromFile(QString& filename);
 public:
-     QDPoint getFNet(int i, int j, int k);// доступ массиву FNet
+     QDPoint getFNet(int i, int j, int k);// доступ к массиву FNet
+     QDPoint getRefPoint(int i, int j, int k);// доступ к массиву RefPoints
+     Index3 getIndexOfRefPoint(int i, int j, int k);// возврат индекса в глоб. сетке опорного узла
      int sizeX();
      int sizeY();
      int sizeZ();
+
+     int sizeW();
+     int sizeXw();
+     int sizeYw();
+     int sizeZw();
+     int getSubareas(int i, int j);
 
 };
 
