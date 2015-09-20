@@ -7,6 +7,7 @@
 class MatrixLU
 {
     public:
+        MatrixLU();
         MatrixLU(unsigned int size);
         //возвращают ссылки на элементы векторов ( можно редактировать элементы)
         int& rig(int i);
@@ -28,7 +29,7 @@ class MatrixLU
         double cU(int i)const;
         friend const QVector<double> operator*(const MatrixLU &matrix, const QVector<double> &vector);// умножение не фактаризованной матрицы!! надо уточнить
         int size()const;
-    private:
+    public:
        unsigned int N;// размерность матрицы
        // ПОРТРЕТ МАТРИЦЫ
        QVector<int>ig;

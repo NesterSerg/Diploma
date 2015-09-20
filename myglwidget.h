@@ -5,17 +5,17 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include "lib.h"
-#include "Net.h"
+#include "mfe.h"
 class MyGLWidget :  public QGLWidget
 {
 public:
 
-    Net *net;
+    MFE mfe;
     MyGLWidget(QWidget *parent);
     void drawNet();
     void drawAxis();
     void drawBrightW();
-    void setNet(Net *n);
+    void setFLAG();
 
     bool color;
     QDPoint center_scene;

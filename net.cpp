@@ -15,6 +15,32 @@ Net::~Net()
 {
 
 }
+
+void Net::clearNet()
+{
+    RefPoints.clear();
+    XSegments.clear();
+    YSegments.clear();
+    ZSegments.clear();
+    XCoD.clear();
+    YCoD.clear();
+    ZCoD.clear();
+    Subareas.clear();
+    OnX.clear();
+    OnY.clear();
+    OnZ.clear();
+    CLSections.clear();
+    IndexOfRefPoints.clear();
+    FNet.clear();
+    Nodes.clear();
+    Edges.clear();
+    FictNodes.clear();
+    FictEdges.clear();
+    newNodeNumeration.clear();
+    newEdgeNumeration.clear();
+    bufNodes.clear();
+    bufEdges.clear();
+}
 /*
 Криволинейные участки
 */
@@ -489,6 +515,327 @@ void Net::curvilinearAccounting()
     }
 }
 
+void Net::fillNodesInfo()
+{
+    NFE = 0;
+    NonFictNodes = 0;
+    FictNodes.resize(NAll);
+    for(int i = 0; i < NAll; i++)
+        FictNodes[i] = 1;// по умолчанию - все фиктивные
+
+    for(int w = 0; w < Nw; w++)//Бежим по подобластям
+    {
+        int x1, x2, y1, y2, z1, z2;//начальный и конечный индекс по координатам
+        x1 = IndexOfRefPoints[Subareas[w][1]][Subareas[w][3]][Subareas[w][5]].i;
+        x2 = IndexOfRefPoints[Subareas[w][2]][Subareas[w][3]][Subareas[w][5]].i;
+        y1 = IndexOfRefPoints[Subareas[w][1]][Subareas[w][3]][Subareas[w][5]].j;
+        y2 = IndexOfRefPoints[Subareas[w][2]][Subareas[w][4]][Subareas[w][5]].j;
+        z1 = IndexOfRefPoints[Subareas[w][1]][Subareas[w][3]][Subareas[w][5]].k;
+        z2 = IndexOfRefPoints[Subareas[w][2]][Subareas[w][3]][Subareas[w][6]].k;
+
+        NFE += (x2 - x1)*(y2 - y1)*(z2 - z1);
+        for(int k = z1; k <= z2; k++)
+        for(int j = y1; j <= y2; j++)
+        for(int i = x1; i <= x2; i++)
+        {
+
+            if(FictNodes[getNodeGlobalId(i, j, k)] == 1)
+            {
+                FictNodes[getNodeGlobalId(i, j, k)] = 0;
+                NonFictNodes++;
+            }
+
+        }
+
+    }
+
+    // Заполняем массив, где хранятся узлы в соответствии с их глобальным номером
+
+    Nodes.resize(NAll);
+    for(int k = 0; k < Nz; k++)
+    for(int j = 0; j < Ny; j++)
+    for(int i = 0; i < Nx; i++)
+    {
+
+        Nodes[getNodeGlobalId(i, j, k)] = FNet[i][j][k];
+    }
+
+    //формируем массив без фиктивных
+    newNodeNumeration.resize(Nodes.size());
+    for(int i = 0; i < newNodeNumeration.size(); i++)
+        newNodeNumeration[i] = -1;
+    bufNodes.clear();
+    bufNodes.resize(NonFictNodes);
+    int newIndex = 0;
+    for(int i = 0; i < FictNodes.size(); i++)
+    {
+        if(!FictNodes[i])
+        {
+            newNodeNumeration[i] = newIndex;
+            bufNodes[newIndex] = Nodes[i];
+            newIndex++;
+        }
+    }
+
+}
+
+void Net::fillEdgesInfo()
+{
+    NEdges = (Nz-1)*(3*Nx*Ny - Nx - Ny) + 2*Nx*Ny - Nx - Ny;//общее число ребер
+    FictEdges.resize(NEdges);
+    for(int i = 0; i < NEdges; i++)
+        FictEdges[i] = 1;//по умолчанию - все фиктивные
+
+    Edges.resize(NEdges);
+    for(int i = 0; i < NEdges; i++)
+        Edges[i].Nodes.resize(2);
+    // Заполняем массив с информацией о фиктивности ребер
+    Index3 buf;
+    Edge edge;
+    edge.Nodes.resize(2);
+    NonFictEdges = 0;
+/*
+Заполняем
+    |
+    | /
+    |/____
+*/
+    for(int k = 0; k < Nz - 1; k++)
+    for(int j = 0; j < Ny - 1; j++)
+    for(int i = 0; i < Nx - 1; i++)
+    {
+        buf.i = i; buf.j = j; buf.k = k;
+        if(!isNodeFict(buf))//если основной узел не фиктивный
+        {
+            if(!isNodeFict(buf.i+1, buf.j, buf.k))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, 1, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i+1, buf.j, buf.k)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+            if(!isNodeFict(buf.i, buf.j+1, buf.k))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, -1, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j+1, buf.k)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+            if(!isNodeFict(buf.i, buf.j, buf.k+1))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, -10, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j, buf.k+1)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+        }
+    }
+/*
+    Заполняем
+    |
+    | /
+    |/
+*/
+    for(int k = 0; k < Nz - 1; k++)
+    for(int j = 0; j < Ny - 1; j++)
+    {
+        buf.i = Nx - 1; buf.j = j; buf.k = k;
+        if(!isNodeFict(buf))//если основной узел не фиктивный
+        {
+            if(!isNodeFict(buf.i, buf.j+1, buf.k))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, -1, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j+1, buf.k)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+            if(!isNodeFict(buf.i, buf.j, buf.k+1))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, -10, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j, buf.k+1)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+        }
+    }
+/*
+    Заполняем
+    |
+    |
+    |_____
+*/
+    for(int k = 0; k < Nz - 1; k++)
+    for(int i = 0; i < Nx - 1; i++)
+    {
+        buf.i = i; buf.j = Ny - 1; buf.k = k;
+        if(!isNodeFict(buf))//если основной узел не фиктивный
+        {
+            if(!isNodeFict(buf.i+1, buf.j, buf.k))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, 1, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i+1, buf.j, buf.k)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+
+            }
+            if(!isNodeFict(buf.i, buf.j, buf.k+1))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, -10, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j, buf.k+1)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+        }
+    }
+
+    for(int k = 0; k < Nz - 1; k++)
+    {
+        buf.i = Nx - 1; buf.j = Ny - 1; buf.k = k;
+        if(!isNodeFict(buf))//если основной узел не фиктивный
+        {
+            if(!isNodeFict(buf.i, buf.j, buf.k+1))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, -10, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j, buf.k+1)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+        }
+    }
+/*
+    Заполняем XY на последнем уровне
+*/
+    for(int j = 0; j < Ny - 1; j++)
+    for(int i = 0; i < Nx - 1; i++)
+    {
+        buf.i = i; buf.j = j; buf.k = Nz - 1;
+        if(!isNodeFict(buf.i+1, buf.j, buf.k))//если ребро действительное
+        {
+            edge.GlobalId = getEdgeGlobalId(buf, 1, 1);
+            edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+            edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i+1, buf.j, buf.k)];
+            Edges[edge.GlobalId] = edge;
+            FictEdges[edge.GlobalId] = 0;
+            NonFictEdges++;
+
+        }
+        if(!isNodeFict(buf.i, buf.j+1, buf.k))//если ребро действительное
+        {
+            edge.GlobalId = getEdgeGlobalId(buf, -1, 1);
+            edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+            edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j+1, buf.k)];
+            Edges[edge.GlobalId] = edge;
+            FictEdges[edge.GlobalId] = 0;
+            NonFictEdges++;
+        }
+    }
+
+    for(int j = 0; j < Ny - 1; j++)
+    {
+        buf.i = Nx - 1; buf.j = j; buf.k = Nz - 1;
+        if(!isNodeFict(buf))//если основной узел не фиктивный
+        {
+            if(!isNodeFict(buf.i, buf.j+1, buf.k))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, -1, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i, buf.j+1, buf.k)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+            }
+
+        }
+    }
+
+    for(int i = 0; i < Nx - 1; i++)
+    {
+        buf.i = i; buf.j = Ny - 1; buf.k = Nz - 1;
+        if(!isNodeFict(buf))//если основной узел не фиктивный
+        {
+            if(!isNodeFict(buf.i+1, buf.j, buf.k))//если ребро действительное
+            {
+                edge.GlobalId = getEdgeGlobalId(buf, 1, 1);
+                edge.Nodes[0] = newNodeNumeration[getNodeGlobalId(buf)];
+                edge.Nodes[1] = newNodeNumeration[getNodeGlobalId(buf.i+1, buf.j, buf.k)];
+                Edges[edge.GlobalId] = edge;
+                FictEdges[edge.GlobalId] = 0;
+                NonFictEdges++;
+
+            }
+
+        }
+    }
+
+
+    newEdgeNumeration.resize(Edges.size());
+    for(int i = 0; i < newEdgeNumeration.size(); i++)
+        newEdgeNumeration[i] = -1;
+    bufEdges.clear();
+    bufEdges.resize(NonFictEdges);
+
+    int newIndex = 0;
+    for(int i = 0; i < FictEdges.size(); i++)
+    {
+        if(!FictEdges[i])
+        {
+            newEdgeNumeration[i] = newIndex;
+            bufEdges[newIndex] = Edges[i];
+            newIndex++;
+        }
+    }
+
+
+}
+
+bool Net::isNodeFict(int i, int j, int k)
+{
+    if(FictNodes[getNodeGlobalId(i, j, k)])//если узел фиктивный
+        return true;
+    else
+        return false;
+}
+
+bool Net::isNodeFict(Index3 index)
+{
+    if(FictNodes[getNodeGlobalId(index.i, index.j, index.k)])//если узел фиктивный
+        return true;
+    else
+        return false;
+}
+
+bool Net::isNodeFict(int GlobalId)
+{
+    if(FictNodes[GlobalId])//если узел фиктивный
+        return true;
+    else
+        return false;
+}
+
+bool Net::isEdgeFict(int i)
+{
+    if(FictEdges[i])//если ребро фиктивное
+        return true;
+    else
+        return false;
+}
+
 /*
 Раздробленная сетка
 */
@@ -515,6 +862,7 @@ void Net::allocation()
         for(int j = 0; j < FNet[i].size(); j++)
             FNet[i][j].resize(Nz);
 
+    NAll = Nx * Ny * Nz;
 // Выделение памяти под массив индексов опорных точек
         IndexOfRefPoints.resize(Nwx);
         for(int i = 0; i < Nwx; i++)
@@ -544,14 +892,7 @@ void Net::allocation()
         FNet[IndexOfRefPoints[i][j][k].i][IndexOfRefPoints[i][j][k].j][IndexOfRefPoints[i][j][k].k] = RefPoints[i][j][k];
     }
 
-    //генерируем цвета подобластей
-    colorsW.resize(Nw);
-    for(int i = 0; i < Nw; i++)
-    {
-        colorsW[i].resize(3);
-        for(int j = 0; j < 3; j++)
-            colorsW[i][j] = (rand()%255)/255.;
-    }
+
 
 
 }
@@ -745,7 +1086,7 @@ void Net::calcPointOnSegments()
 
                         for(int t = 0; t <= XSegments[i] ; t++)//обрабатываем каждую вертикальную линию между двумя опорными отрезками по X
                         {
-                            qDebug() << _iBD.i+t << ", " << _iBD.j << ", " << _iBD.k << "\n";
+
                             double _hx, _hy, _hz;
                             _hx = getLengthX(FNet[_iBD.i+t][_iBD.j][_iBD.k], FNet[_iBU.i+t][_iBU.j][_iBU.k]);
                             _hy = getLengthY(FNet[_iBD.i+t][_iBD.j][_iBD.k], FNet[_iBU.i+t][_iBU.j][_iBU.k]);
@@ -821,7 +1162,7 @@ void Net::calcPointOnSegments()
 
                         for(int t = 0; t <= YSegments[j] ; t++)//обрабатываем каждую вертикальную линию между двумя опорными отрезками по X
                         {
-                            qDebug() << _iBD.i << ", " << _iBD.j+t << ", " << _iBD.k << "\n";
+
                             double _hx, _hy, _hz;
                             _hx = getLengthX(FNet[_iBD.i][_iBD.j+t][_iBD.k], FNet[_iBU.i][_iBU.j+t][_iBU.k]);
                             _hy = getLengthY(FNet[_iBD.i][_iBD.j+t][_iBD.k], FNet[_iBU.i][_iBU.j+t][_iBU.k]);
@@ -1068,6 +1409,11 @@ QDPoint Net::getFNet(int i, int j, int k)
     return FNet[i][j][k];
 }
 
+QDPoint Net::getFNet(Index3 index)
+{
+    return FNet[index.i][index.j][index.k];
+}
+
 QDPoint Net::getRefPoint(int i, int j, int k)
 {
     return RefPoints[i][j][k];
@@ -1078,9 +1424,94 @@ Index3 Net::getIndexOfRefPoint(int i, int j, int k)
     return IndexOfRefPoints[i][j][k];
 }
 
-int Net::getGlobalId(int i, int j, int k)
+int Net::getEdgeGlobalId(Index3 index, int mode, int dir)
+{
+    int z_, y_;
+    z_ = index.k * (3*Nx*Ny - Nx - Ny);
+    y_ = index.j * (2*Nx - 1);
+    switch(mode)
+    {
+    case 1://Ребро по X
+        if(dir == 1)//ребро (i, j, k) <-> (i+1, j, k)
+            return z_ + y_ + index.i;
+        else//ребро (i-1, j, k) <-> (i, j, k)
+            return z_ + y_ + index.i - 1;
+        break;
+    case -1://Ребро по Y
+        if(dir == 1)//ребро (i, j, k) <-> (i, j+1, k)
+            return z_ + y_ + Nx - 1 + index.i;
+        else//ребро (i, j-1, k) <-> (i, j, k)
+            return z_ + y_ - Nx + index.i;
+        break;
+    case -10://Ребро по Z
+        if(dir == 1)//ребро (i, j, k) <-> (i, j, k+1)
+            return z_ + 2*Nx*Ny - Nx - Ny + index.j*Nx + index.i;
+        else//ребро (i, j, k-1) <-> (i, j, k)
+            return z_ - Nx*Ny + index.j*Nx + index.i + 1;
+        break;
+    }
+}
+
+int Net::getEdgeGlobalId(int i, int j, int k, int mode, int dir)
+{
+    int z_, y_;
+    z_ = k * (3*Nx*Ny - Nx - Ny);
+    y_ = j * (2*Nx - 1);
+    switch(mode)
+    {
+    case 1://Ребро по X
+        if(dir == 1)//ребро (i, j, k) <-> (i+1, j, k)
+            return z_ + y_ + i;
+        else//ребро (i-1, j, k) <-> (i, j, k)
+            return z_ + y_ + i - 1;
+        break;
+    case -1://Ребро по Y
+        if(dir == 1)//ребро (i, j, k) <-> (i, j+1, k)
+            return z_ + y_ + Nx - 1 + i;
+        else//ребро (i, j-1, k) <-> (i, j, k)
+            return z_ + y_ - Nx + i;
+        break;
+    case -10://Ребро по Z
+        if(dir == 1)//ребро (i, j, k) <-> (i, j, k+1)
+            return z_ + 2*Nx*Ny - Nx - Ny + j*Nx + i;
+        else//ребро (i, j, k-1) <-> (i, j, k)
+            return z_ - Nx*Ny + j*Nx + i + 1;
+        break;
+    }
+}
+
+int Net::getNewNodeNumeration(int i)
+{
+    return newNodeNumeration[i];
+}
+
+int Net::getNewEdgeNumeration(int i)
+{
+    return newEdgeNumeration[i];
+}
+
+void Net::swapNodes()
+{
+    Nodes.clear();
+    Nodes.resize(NonFictNodes);
+    Nodes = bufNodes;
+}
+
+void Net::swapEdges()
+{
+    Edges.clear();
+    Edges.resize(NonFictEdges);
+    Edges = bufEdges;
+}
+
+int Net::getNodeGlobalId(int i, int j, int k)
 {
     return i + j * Nx + k * Nx * Ny;
+}
+
+int Net::getNodeGlobalId(Index3 index)
+{
+    return index.i + index.j * Nx + index.k * Nx * Ny;
 }
 
 int Net::sizeX()
@@ -1119,6 +1550,21 @@ int Net::getSubareas(int i, int j)
     return Subareas[i][j];
 }
 
+int Net::getNFE()
+{
+    return NFE;
+}
+
+int Net::getNonFictNodes()
+{
+    return NonFictNodes;
+}
+
+int Net::getNonFictEdges()
+{
+    return NonFictEdges;
+}
+
 
 /*
 Остальное
@@ -1131,12 +1577,14 @@ void Net::createNet(QString& dir)
     allocation();// выделяем память под элементы, подсчитываем индексы опорных точек в сетке, зануляем сетку
     curvilinearAccounting();// генерируем точки на кривол. участках
     calcPointOnSegments();// генерируем точки на отрезках между опорными точками (не кривол.)
+    fillNodesInfo();
+    fillEdgesInfo();
     createFile();//записываем сетку в файл
 }
 
 void Net::createFile()
 {
-    QString filename = "C:\\Users\\Stepdan\\Desktop\\MyNet.txt";
+    QString filename = "MyNet.txt";
     QFile file(filename);
     if(file.open(QIODevice::WriteOnly))
     {
@@ -1170,7 +1618,7 @@ void Net::loadInfoFromFile(QString& filename)
     //Считывание числа опорных точек по координатам
         in >> bufString;// "Количество_опорных_точек_по_координатам"
         in >> Nwx >> Nwy >> Nwz;
-        NAll = Nwx * Nwy * Nwz;
+        NwAll = Nwx * Nwy * Nwz;
 
     //Выделение памяти под опорные точки
         RefPoints.resize(Nwx);

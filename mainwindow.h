@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include "QDPoint.h"
 #include "operators.h"
-#include "net.h"
+#include "mfe.h"
 namespace Ui
 {
 class MainWindow;
@@ -30,7 +30,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QMenu *menu;
-    Net net;
+    MFE mfe;
     void create_menu();
     QString directory;
     void loadPath();
