@@ -19,6 +19,13 @@
 #include "QDPoint.h"
 #include "index3.h"
 
+//ребро
+class Edge
+{
+public:
+    QVector<int> Nodes;
+    int GlobalId;
+};
 
 
 #endif // LIB

@@ -14,6 +14,8 @@ void MyGLWidget::drawNet()
 
     double pi = 3.141592, _x, _y, _z;
 
+
+    glLineWidth(2);
     double xCentre = 7, yCentre = 4, zCentre = 0, radius = 2;
     // Прорисовка окружности непосредственно.
     glColor3f(1, 0, 0);
@@ -43,8 +45,8 @@ void MyGLWidget::drawNet()
 
 
     //рисуем по подобластям
-
-
+/*
+    glLineWidth(1);
     glColor3f(0, 0, 0);
     for(int w = 0; w < net->sizeW(); w++)
     {
@@ -86,7 +88,28 @@ void MyGLWidget::drawNet()
             glEnd();
         }
     }
+*/
 
+    //рисуем по КЭ
+    FiniteElement FE;
+    glColor3f(0, 0, 0);
+    glLineWidth(1);
+    for(int i = 0; i < mfe.FE.size(); i++)
+    {
+        FE = mfe.FE[i];
+
+        for(int j = 0; j < 12; j++)
+        {
+            glBegin(GL_LINES);
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[j]].Nodes[0]].x() - center_scene.x() ) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[j]].Nodes[0]].y() - center_scene.y() ) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[j]].Nodes[0]].z() - center_scene.z() ) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[j]].Nodes[1]].x() - center_scene.x() ) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[j]].Nodes[1]].y() - center_scene.y() ) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[j]].Nodes[1]].z() - center_scene.z() ) * cof );
+            glEnd();
+        }
+    }
 }
 
 void MyGLWidget::drawAxis()
@@ -145,6 +168,7 @@ void MyGLWidget::drawAxis()
 
 void MyGLWidget::drawBrightW()
 {
+    /*
     for(int w = 0; w < net->sizeW(); w++)
     {
         int x1, x2, y1, y2, z1, z2;
@@ -204,18 +228,130 @@ void MyGLWidget::drawBrightW()
             glEnd();
         }
     }
+    */
+
+    //рисуем по КЭ
+
+    FiniteElement FE;
+
+    glLineWidth(1);
+    for(int i = 0; i < mfe.FE.size(); i++)
+    {
+        FE = mfe.FE[i];
+
+        glColor3f(mfe.colorsW[FE.w][0], mfe.colorsW[FE.w][1], mfe.colorsW[FE.w][2]);
+        for(int j = 0; j < 12; j++)
+        {
+            //нижняя грань
+            glBegin(GL_QUADS);
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[0]].Nodes[0]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[0]].Nodes[0]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[0]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[0]].Nodes[1]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[0]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[0]].Nodes[1]].z() - center_scene.z() + 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[1]].Nodes[1]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[1]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[1]].Nodes[1]].z() - center_scene.z() + 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[1]].Nodes[0]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[1]].Nodes[0]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[1]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+
+            glEnd();
+            //верхняя
+            glBegin(GL_QUADS);
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[4]].Nodes[0]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[4]].Nodes[0]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[4]].Nodes[0]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[4]].Nodes[1]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[4]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[4]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[5]].Nodes[1]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[5]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[5]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[5]].Nodes[0]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[5]].Nodes[0]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[5]].Nodes[0]].z() - center_scene.z() - 0.005) * cof );
+
+            glEnd();
+            //ближняя
+            glBegin(GL_QUADS);
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[0]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[0]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[1]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[1]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[9]].Nodes[1]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[9]].Nodes[1]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[9]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[9]].Nodes[0]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[9]].Nodes[0]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[9]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+
+            glEnd();
+            //дальняя
+            glBegin(GL_QUADS);
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[0]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[0]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[1]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[1]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[0]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[0]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+
+            glEnd();
+            //левая
+            glBegin(GL_QUADS);
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[0]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[0]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[1]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[1]].y() - center_scene.y() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[8]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[1]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[0]].x() - center_scene.x() + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[0]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[10]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+
+            glEnd();
+            //правая
+            glBegin(GL_QUADS);
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[3]].Nodes[0]].x() - center_scene.x()  - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[3]].Nodes[0]].y() - center_scene.y()  + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[3]].Nodes[0]].z() - center_scene.z()  + 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[3]].Nodes[1]].x() - center_scene.x()  - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[3]].Nodes[1]].y() - center_scene.y()  + 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[3]].Nodes[1]].z() - center_scene.z()  - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[1]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[1]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[1]].z() - center_scene.z() - 0.005) * cof );
+                glVertex3d( (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[0]].x() - center_scene.x() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[0]].y() - center_scene.y() - 0.005) * cof,
+                            (mfe.Nodes[mfe.Edges[FE.EdgesId[11]].Nodes[0]].z() - center_scene.z() + 0.005) * cof );
+
+            glEnd();
+
+        }
+    }
 }
 
-void MyGLWidget::setNet(Net *n)
+void MyGLWidget::setFLAG()
 {
-    net = n;
     flag = 1;
-    center_scene = net->getCentreMass();
+    center_scene = mfe.centreMass;
 }
 
 void MyGLWidget::initializeGL()
 {
-
+    center_scene = mfe.centreMass;
     glClearColor(248./255, 244./255, 1, 0);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);//GL_SMOOTH

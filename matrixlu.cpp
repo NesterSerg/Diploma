@@ -7,6 +7,11 @@ MatrixLU::MatrixLU(unsigned int size)
     D.resize(N);
 }
 
+MatrixLU::MatrixLU()
+{
+
+}
+
 int &MatrixLU::rig(int i)
 {
     return ig[i];

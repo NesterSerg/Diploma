@@ -65,8 +65,11 @@ void MainWindow::selectDirectory()
 
 void MainWindow::on_pushButton_clicked()
 {
-    net.createNet(directory);
-    ui->widget->setNet(&net);
+    ui->widget->mfe.net.createNet(directory);
+    ui->widget->mfe.createFE();
+    ui->widget->mfe.buildPortraitEdge();
+    qDebug() << "END";
+    ui->widget->setFLAG();
     ui->widget->setFocus();
     ui->widget->update();
 }

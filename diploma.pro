@@ -44,7 +44,9 @@ RC_FILE += appIcon.rc
 
 DISTFILES += \
     NetInfo.txt \
-    Finiteelement.txt
+    MyNet.txt \
+    Finiteelement.txt \
+    LOG.txt
 
 
 
